@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>斗兽棋游戏</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Microsoft YaHei', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      h1 {
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .game-container {
+        background: white;
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        width: fit-content;
+        min-width: 500px;
+        max-width: 95vw;
+        margin: 0 auto;
+      }
+
+      .game-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .current-player {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .red-player {
+        color: #dc3545;
+      }
+
+      .blue-player {
+        color: #007bff;
+      }
+
+      .restart-btn {
+        padding: 10px 20px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s;
+      }
+
+      .restart-btn:hover {
+        background: #218838;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(7, 67px);
+        grid-template-rows: repeat(9, 67px);
+        gap: 1px;
+        background: #333;
+        padding: 8px;
+        border-radius: 8px;
+        margin: 0 auto;
+        width: fit-content;
+      }
+
+      .cell {
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s;
+        font-size: 32px;
+        font-weight: bold;
+      }
+
+      .cell:hover {
+        background: #e0e0e0;
+        transform: scale(1.05);
+      }
+
+      .cell.selected {
+        background: #ffd700;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      }
+
+      .cell.valid-move {
+        background: #90ee90;
+      }
+
+      .cell.trap {
+        background: #ffb6c1;
+      }
+
+      .cell.den {
+        background: #dda0dd;
+      }
+
+      .cell.river {
+        background: #87ceeb;
+      }
+
+      .piece {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s;
+        line-height: 1;
+      }
+
+      .piece-symbol {
+        font-size: 20px;
+        margin-bottom: 1px;
+      }
+
+      .piece-text {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .piece.red {
+        background: linear-gradient(135deg, #ff6b6b, #dc3545);
+        border: 2px solid #c82333;
+      }
+
+      .piece.blue {
+        background: linear-gradient(135deg, #74b9ff, #007bff);
+        border: 2px solid #0056b3;
+      }
+
+      .piece:hover {
+        transform: scale(1.1);
+      }
+
+      .rules {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        text-align: left;
+      }
+
+      .rules h3 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .rules ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      .rules li {
+        margin-bottom: 5px;
+        color: #666;
+      }
+
+      .game-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .btn-restart {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-restart:hover {
+        background: #218838;
+        transform: translateY(-2px);
+      }
+
+      .btn-back {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-back:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>斗兽棋游戏</h1>
+    <div class="game-container">
+      <div class="game-info">
+        <div class="current-player">
+          当前玩家: <span id="currentPlayer" class="red-player">红方</span>
+        </div>
+        <div class="game-controls">
+          <button class="btn btn-restart" onclick="restartGame()">重新开始</button>
+          <a href="index.html" class="btn btn-back">返回大厅</a>
+        </div>
+      </div>
+
+      <div class="board" id="board"></div>
+
+      <div class="rules">
+        <h3>游戏规则</h3>
+        <ul>
+          <li>🐭 老鼠：可以进入河流，可以吃大象</li>
+          <li>🐱 猫：可以吃老鼠</li>
+          <li>🐶 狗：可以吃猫</li>
+          <li>🐺 狼：可以吃狗</li>
+          <li>🐯 虎：可以吃狼，可以跳过河流</li>
+          <li>🦁 狮子：可以吃虎，可以跳过河流</li>
+          <li>🐘 大象：可以吃狮子，但怕老鼠</li>
+          <li>陷阱：进入对方陷阱的棋子等级降为0</li>
+          <li>目标：吃掉对方所有棋子或占领对方兽穴</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      class AnimalChess {
+        constructor() {
+          this.board = Array(9)
+            .fill(null)
+            .map(() => Array(7).fill(null));
+          this.currentPlayer = 'red';
+          this.selectedPiece = null;
+          this.validMoves = [];
+          this.gameOver = false;
+
+          this.initializeBoard();
+          this.renderBoard();
+          this.bindEvents();
+        }
+
+        initializeBoard() {
+          // 红方棋子 (下方)
+          this.board[0][0] = {
+            type: 'lion',
+            rank: 7,
+            player: 'red',
+            symbol: '🦁',
+            text: '狮',
+          };
+          this.board[0][6] = {
+            type: 'tiger',
+            rank: 6,
+            player: 'red',
+            symbol: '🐯',
+            text: '虎',
+          };
+          this.board[1][1] = {
+            type: 'dog',
+            rank: 3,
+            player: 'red',
+            symbol: '🐶',
+            text: '狗',
+          };
+          this.board[1][5] = {
+            type: 'cat',
+            rank: 2,
+            player: 'red',
+            symbol: '🐱',
+            text: '猫',
+          };
+          this.board[2][0] = {
+            type: 'rat',
+            rank: 1,
+            player: 'red',
+            symbol: '🐭',
+            text: '鼠',
+          };
+          this.board[2][2] = {
+            type: 'leopard',
+            rank: 5,
+            player: 'red',
+            symbol: '🐆',
+            text: '豹',
+          };
+          this.board[2][4] = {
+            type: 'wolf',
+            rank: 4,
+            player: 'red',
+            symbol: '🐺',
+            text: '狼',
+          };
+          this.board[2][6] = {
+            type: 'elephant',
+            rank: 8,
+            player: 'red',
+            symbol: '🐘',
+            text: '象',
+          };
+
+          // 蓝方棋子 (上方)
+          this.board[6][0] = {
+            type: 'elephant',
+            rank: 8,
+            player: 'blue',
+            symbol: '🐘',
+            text: '象',
+          };
+          this.board[6][2] = {
+            type: 'wolf',
+            rank: 4,
+            player: 'blue',
+            symbol: '🐺',
+            text: '狼',
+          };
+          this.board[6][4] = {
+            type: 'leopard',
+            rank: 5,
+            player: 'blue',
+            symbol: '🐆',
+            text: '豹',
+          };
+          this.board[6][6] = {
+            type: 'rat',
+            rank: 1,
+            player: 'blue',
+            symbol: '🐭',
+            text: '鼠',
+          };
+          this.board[7][1] = {
+            type: 'cat',
+            rank: 2,
+            player: 'blue',
+            symbol: '🐱',
+            text: '猫',
+          };
+          this.board[7][5] = {
+            type: 'dog',
+            rank: 3,
+            player: 'blue',
+            symbol: '🐶',
+            text: '狗',
+          };
+          this.board[8][0] = {
+            type: 'tiger',
+            rank: 6,
+            player: 'blue',
+            symbol: '🐯',
+            text: '虎',
+          };
+          this.board[8][6] = {
+            type: 'lion',
+            rank: 7,
+            player: 'blue',
+            symbol: '🦁',
+            text: '狮',
+          };
+        }
+
+        renderBoard() {
+          const boardElement = document.getElementById('board');
+          boardElement.innerHTML = '';
+
+          for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 7; col++) {
+              const cell = document.createElement('div');
+              cell.className = 'cell';
+              cell.dataset.row = row;
+              cell.dataset.col = col;
+
+              // 设置特殊地形
+              if ((row === 0 && col === 2) || (row === 8 && col === 2)) {
+                cell.classList.add('trap');
+              }
+              if ((row === 0 && col === 4) || (row === 8 && col === 4)) {
+                cell.classList.add('trap');
+              }
+              if ((row === 1 && col === 3) || (row === 7 && col === 3)) {
+                cell.classList.add('trap');
+              }
+              if ((row === 0 && col === 3) || (row === 8 && col === 3)) {
+                cell.classList.add('den');
+              }
+              if (row >= 3 && row <= 5 && col >= 1 && col <= 2) {
+                cell.classList.add('river');
+              }
+              if (row >= 3 && row <= 5 && col >= 4 && col <= 5) {
+                cell.classList.add('river');
+              }
+
+              const piece = this.board[row][col];
+              if (piece) {
+                const pieceElement = document.createElement('div');
+                pieceElement.className = `piece ${piece.player}`;
+                pieceElement.title = `${piece.type} (等级 ${piece.rank})`;
+
+                const symbolElement = document.createElement('div');
+                symbolElement.className = 'piece-symbol';
+                symbolElement.textContent = piece.symbol;
+
+                const textElement = document.createElement('div');
+                textElement.className = 'piece-text';
+                textElement.textContent = piece.text;
+
+                pieceElement.appendChild(symbolElement);
+                pieceElement.appendChild(textElement);
+
+                cell.appendChild(pieceElement);
+              }
+
+              boardElement.appendChild(cell);
+            }
+          }
+        }
+
+        bindEvents() {
+          document.getElementById('board').addEventListener('click', e => {
+            if (this.gameOver) return;
+
+            const cell = e.target.closest('.cell');
+            if (!cell) return;
+
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            if (this.selectedPiece) {
+              if (
+                this.isValidMove(
+                  this.selectedPiece.row,
+                  this.selectedPiece.col,
+                  row,
+                  col,
+                )
+              ) {
+                this.makeMove(
+                  this.selectedPiece.row,
+                  this.selectedPiece.col,
+                  row,
+                  col,
+                );
+                this.selectedPiece = null;
+                this.validMoves = [];
+                this.currentPlayer =
+                  this.currentPlayer === 'red' ? 'blue' : 'red';
+                this.updateCurrentPlayer();
+                this.checkGameOver();
+              } else if (
+                this.board[row][col] &&
+                this.board[row][col].player === this.currentPlayer
+              ) {
+                this.selectPiece(row, col);
+              } else {
+                this.selectedPiece = null;
+                this.validMoves = [];
+              }
+            } else if (
+              this.board[row][col] &&
+              this.board[row][col].player === this.currentPlayer
+            ) {
+              this.selectPiece(row, col);
+            }
+
+            this.renderBoard();
+            this.highlightValidMoves();
+          });
+        }
+
+        selectPiece(row, col) {
+          this.selectedPiece = { row, col };
+          this.validMoves = this.getValidMoves(row, col);
+        }
+
+        getValidMoves(row, col) {
+          const piece = this.board[row][col];
+          if (!piece || piece.player !== this.currentPlayer) return [];
+
+          const moves = [];
+          const directions = [
+            [-1, 0],
+            [1, 0],
+            [0, -1],
+            [0, 1],
+          ];
+
+          for (const [dr, dc] of directions) {
+            const newRow = row + dr;
+            const newCol = col + dc;
+
+            if (this.isValidPosition(newRow, newCol)) {
+              if (this.canMoveTo(row, col, newRow, newCol)) {
+                moves.push([newRow, newCol]);
+              }
+            }
+
+            // 狮子和老虎可以跳过河流
+            if (piece.type === 'lion' || piece.type === 'tiger') {
+              let jumpRow = newRow;
+              let jumpCol = newCol;
+              let canJump = false;
+
+              while (
+                this.isValidPosition(jumpRow, jumpCol) &&
+                this.isRiver(jumpRow, jumpCol)
+              ) {
+                jumpRow += dr;
+                jumpCol += dc;
+              }
+
+              if (
+                this.isValidPosition(jumpRow, jumpCol) &&
+                !this.isRiver(jumpRow, jumpCol)
+              ) {
+                if (this.canMoveTo(row, col, jumpRow, jumpCol)) {
+                  moves.push([jumpRow, jumpCol]);
+                }
+              }
+            }
+          }
+
+          return moves;
+        }
+
+        isValidPosition(row, col) {
+          return row >= 0 && row < 9 && col >= 0 && col < 7;
+        }
+
+        isRiver(row, col) {
+          return (
+            row >= 3 &&
+            row <= 5 &&
+            ((col >= 1 && col <= 2) || (col >= 4 && col <= 5))
+          );
+        }
+
+        isTrap(row, col, player) {
+          if (player === 'red') {
+            return (
+              (row === 8 && col === 2) ||
+              (row === 8 && col === 4) ||
+              (row === 7 && col === 3)
+            );
+          } else {
+            return (
+              (row === 0 && col === 2) ||
+              (row === 0 && col === 4) ||
+              (row === 1 && col === 3)
+            );
+          }
+        }
+
+        isDen(row, col, player) {
+          if (player === 'red') {
+            return row === 0 && col === 3;
+          } else {
+            return row === 8 && col === 3;
+          }
+        }
+
+        canMoveTo(fromRow, fromCol, toRow, toCol) {
+          const piece = this.board[fromRow][fromCol];
+          const targetPiece = this.board[toRow][toCol];
+
+          // 不能移动到己方棋子位置
+          if (targetPiece && targetPiece.player === piece.player) {
+            return false;
+          }
+
+          // 检查河流限制
+          if (this.isRiver(toRow, toCol)) {
+            // 只有老鼠可以进入河流
+            if (piece.type !== 'rat') {
+              return false;
+            }
+          }
+
+          // 如果目标位置有敌方棋子，检查是否可以吃
+          if (targetPiece) {
+            return this.canCapture(piece, targetPiece, toRow, toCol);
+          }
+
+          return true;
+        }
+
+        canCapture(attacker, defender, defenderRow, defenderCol) {
+          // 在陷阱中的棋子可以被任何棋子吃掉
+          if (this.isTrap(defenderRow, defenderCol, defender.player)) {
+            return true;
+          }
+
+          // 特殊规则：老鼠可以吃大象
+          if (attacker.type === 'rat' && defender.type === 'elephant') {
+            return true;
+          }
+
+          // 特殊规则：大象不能吃老鼠
+          if (attacker.type === 'elephant' && defender.type === 'rat') {
+            return false;
+          }
+
+          // 一般规则：等级高的可以吃等级低的
+          return attacker.rank >= defender.rank;
+        }
+
+        isValidMove(fromRow, fromCol, toRow, toCol) {
+          return this.getValidMoves(fromRow, fromCol).some(
+            ([r, c]) => r === toRow && c === toCol,
+          );
+        }
+
+        makeMove(fromRow, fromCol, toRow, toCol) {
+          const piece = this.board[fromRow][fromCol];
+          this.board[fromRow][fromCol] = null;
+          this.board[toRow][toCol] = piece;
+
+          // 检查是否占领对方兽穴
+          if (
+            this.isDen(toRow, toCol, piece.player === 'red' ? 'blue' : 'red')
+          ) {
+            this.gameOver = true;
+            alert(
+              `${
+                piece.player === 'red' ? '红方' : '蓝方'
+              }获胜！占领了对方的兽穴！`,
+            );
+          }
+        }
+
+        checkGameOver() {
+          let redPieces = 0;
+          let bluePieces = 0;
+
+          for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 7; col++) {
+              const piece = this.board[row][col];
+              if (piece) {
+                if (piece.player === 'red') redPieces++;
+                else bluePieces++;
+              }
+            }
+          }
+
+          if (redPieces === 0) {
+            this.gameOver = true;
+            alert('蓝方获胜！红方没有棋子了！');
+          } else if (bluePieces === 0) {
+            this.gameOver = true;
+            alert('红方获胜！蓝方没有棋子了！');
+          }
+        }
+
+        highlightValidMoves() {
+          if (!this.selectedPiece) return;
+
+          const cells = document.querySelectorAll('.cell');
+          cells.forEach(cell => {
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            if (
+              this.selectedPiece.row === row &&
+              this.selectedPiece.col === col
+            ) {
+              cell.classList.add('selected');
+            }
+
+            if (this.validMoves.some(([r, c]) => r === row && c === col)) {
+              cell.classList.add('valid-move');
+            }
+          });
+        }
+
+        updateCurrentPlayer() {
+          const playerElement = document.getElementById('currentPlayer');
+          playerElement.textContent =
+            this.currentPlayer === 'red' ? '红方' : '蓝方';
+          playerElement.className =
+            this.currentPlayer === 'red' ? 'red-player' : 'blue-player';
+        }
+
+        restart() {
+          this.board = Array(9)
+            .fill(null)
+            .map(() => Array(7).fill(null));
+          this.currentPlayer = 'red';
+          this.selectedPiece = null;
+          this.validMoves = [];
+          this.gameOver = false;
+          this.initializeBoard();
+          this.renderBoard();
+          this.updateCurrentPlayer();
+        }
+      }
+
+      let game;
+
+      function initGame() {
+        game = new AnimalChess();
+      }
+
+      function restartGame() {
+        if (game) {
+          game.restart();
+        }
+      }
+
+      // 初始化游戏
+      initGame();
+    </script>
+  </body>
+</html>

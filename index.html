@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏大厅 - 经典棋类游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 2.5em;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .game-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .game-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .game-features li {
+            color: #777;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .footer {
+            margin-top: 50px;
+            color: white;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .game-grid {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>游戏大厅</h1>
+    
+    <div class="game-grid">
+        <div class="game-card" onclick="location.href='gomoku.html'">
+            <div class="game-icon">⚫</div>
+            <div class="game-title">五子棋</div>
+            <div class="game-description">
+                经典的五子连珠游戏，在15×15的棋盘上，先连成五子者获胜。
+            </div>
+            <ul class="game-features">
+                <li>✓ 支持双人对战</li>
+                <li>✓ 智能胜负判断</li>
+                <li>✓ 优雅的界面设计</li>
+            </ul>
+            <a href="gomoku.html" class="play-btn">开始游戏</a>
+        </div>
+
+        <div class="game-card" onclick="location.href='animal-chess.html'">
+            <div class="game-icon">🦁</div>
+            <div class="game-title">斗兽棋</div>
+            <div class="game-description">
+                中国传统棋类游戏，动物棋子的等级制度，策略性极强的对战游戏。
+            </div>
+            <ul class="game-features">
+                <li>✓ 8种不同动物棋子</li>
+                <li>✓ 特殊地形系统</li>
+                <li>✓ 完整游戏规则</li>
+            </ul>
+            <a href="animal-chess.html" class="play-btn">开始游戏</a>
+        </div>
+
+        <div class="game-card" onclick="location.href='chinese-chess.html'">
+            <div class="game-icon">♟️</div>
+            <div class="game-title">中国象棋</div>
+            <div class="game-description">
+                经典的中国象棋游戏，楚河汉界，运筹帷幄。
+            </div>
+            <ul class="game-features">
+                <li>✓ 完整象棋规则</li>
+                <li>✓ 真实棋子布局</li>
+                <li>✓ 精美中国风界面</li>
+            </ul>
+            <a href="chinese-chess.html" class="play-btn">开始游戏</a>
+        </div>
+
+        <div class="game-card" onclick="location.href='flight-chess.html'">
+            <div class="game-icon">✈️</div>
+            <div class="game-title">飞行棋</div>
+            <div class="game-description">
+                经典的飞行棋游戏，支持2-4人同时游戏，包含捷径和反弹等趣味元素。
+            </div>
+            <ul class="game-features">
+                <li>✓ 支持2-4人对战</li>
+                <li>✓ 捷径和反弹机制</li>
+                <li>✓ 精美动画效果</li>
+            </ul>
+            <a href="flight-chess.html" class="play-btn">开始游戏</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>更多游戏正在开发中...</p>
+    </div>
+
+    <script>
+        // 添加一些交互效果
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (!this.style.opacity || this.style.opacity === '1') {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                if (!this.style.opacity || this.style.opacity === '1') {
+                    this.style.transform = 'translateY(0) scale(1)';
+                }
+            });
+        });
+
+        // 添加加载动画
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(50px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
