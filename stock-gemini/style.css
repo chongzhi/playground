@@ -87,7 +87,7 @@ main {
     display: flex;
     justify-content: space-between;
     padding-top: 0.75rem;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
     border-top: 1px solid var(--border-color);
 }
 
@@ -119,7 +119,7 @@ main {
 }
 
 .value-total {
-    color: #9B59B6; /* 紫色 */
+    color: #E67E22; /* 橙色，与价格保持一致 */
     font-weight: 500;
 }
 
@@ -157,6 +157,7 @@ main {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1.2fr;
     gap: 1rem;
+    margin-top: 0;
 }
 
 /* 历史记录项头部布局 */
@@ -176,7 +177,7 @@ main {
 
 /* 修改按钮样式 */
 .edit-btn {
-    background-color: #2196F3;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -187,7 +188,7 @@ main {
 }
 
 .edit-btn:hover {
-    background-color: #1976D2;
+    background-color: var(--primary-dark-color);
 }
 
 /* 删除按钮样式 */
