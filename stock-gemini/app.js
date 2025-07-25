@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="stock-code">${stock.code}</div>
                 </div>
                 <div class="item-details">
-                    <div class="item-col-1"><span>持仓</span><span>${stock.quantity}</span></div>
-                    <div class="item-col-2"><span>成本</span><span>${stock.avgCost.toFixed(2)}</span></div>
-                    <div class="item-col-3"><span>总市值</span><span>${(stock.quantity * stock.avgCost).toFixed(2)}</span></div>
+                    <div class="item-col-1"><span>持仓</span><span class="value-quantity">${stock.quantity}</span></div>
+                    <div class="item-col-2"><span>成本</span><span class="value-price">${stock.avgCost.toFixed(2)}</span></div>
+                    <div class="item-col-3"><span>总市值</span><span class="value-total">${(stock.quantity * stock.avgCost).toFixed(2)}</span></div>
                 </div>
             `;
             holdingsList.appendChild(item);
@@ -106,9 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="item-details">
                     <div class="item-col-1"><span>类型</span><span>${tx.type === 'buy' ? '买入' : '卖出'}</span></div>
-                    <div class="item-col-2"><span>价格</span><span>${tx.price.toFixed(2)}</span></div>
-                    <div class="item-col-3"><span>数量</span><span>${tx.quantity}</span></div>
-                    <div class="item-col-4"><span>总值</span><span>${(tx.price * tx.quantity).toFixed(2)}</span></div>
+                    <div class="item-col-2"><span>价格</span><span class="value-price">${tx.price.toFixed(2)}</span></div>
+                    <div class="item-col-3"><span>数量</span><span class="value-quantity">${tx.quantity}</span></div>
+                    <div class="item-col-4"><span>总值</span><span class="value-total">${(tx.price * tx.quantity).toFixed(2)}</span></div>
                 </div>
             `;
             historyList.appendChild(item);
