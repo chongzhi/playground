@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="item-details">
                     <div class="item-col-1"><span>持仓</span><span class="value-quantity">${stock.quantity.toLocaleString('en-US')}</span></div>
-                    <div class="item-col-2"><span>成本</span><span class="value-price">${stock.avgCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
-                    <div class="item-col-3"><span>总市值</span><span class="value-total">${(stock.quantity * stock.avgCost).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
+                    <div class="item-col-2"><span>成本</span><span class="value-price">$${stock.avgCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
+                    <div class="item-col-3"><span>总市值</span><span class="value-total">$${(stock.quantity * stock.avgCost).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
                 </div>
             `;
             holdingsList.appendChild(item);
