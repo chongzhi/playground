@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'profit':
                 headerTitle.textContent = '收益分析';
+                renderPriceInputs();
                 renderProfitAnalysis();
                 break;
         }
@@ -204,6 +205,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return Object.fromEntries(Object.entries(holdings).filter(([_, stock]) => stock.quantity > 0));
     }
 
+    // --- 用户输入的价格数据 ---
+    let userPrices = {};
+    const priceStorageKey = 'userStockPrices';
+
+    // 从localStorage加载用户输入的价格
+    function loadUserPrices() {
+        const saved = localStorage.getItem(priceStorageKey);
+        userPrices = saved ? JSON.parse(saved) : {};
+    }
+
+    // 保存用户输入的价格到localStorage
+    function saveUserPrices() {
+        localStorage.setItem(priceStorageKey, JSON.stringify(userPrices));
+    }
+
     // --- 收益分析逻辑 ---
     function calculateProfitAnalysis(holdings) {
         let totalCost = 0;
@@ -211,7 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const stockProfits = [];
 
         Object.values(holdings).forEach(stock => {
-            const currentValue = stock.quantity * stock.avgCost; // 使用成本价作为当前价值
+            // 使用用户输入的价格，如果没有则使用成本价
+            const currentPrice = userPrices[stock.code] || stock.avgCost;
+            const currentValue = stock.quantity * currentPrice;
             const profit = currentValue - stock.totalCost;
             const profitPercent = stock.totalCost > 0 ? (profit / stock.totalCost) * 100 : 0;
 
@@ -220,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             stockProfits.push({
                 ...stock,
+                currentPrice,
                 currentValue,
                 profit,
                 profitPercent
@@ -238,6 +257,41 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // 渲染价格输入界面
+    function renderPriceInputs() {
+        const transactions = getTransactions();
+        const holdings = calculateHoldings(transactions);
+        const priceInputsContainer = document.getElementById('price-inputs');
+        
+        priceInputsContainer.innerHTML = '';
+        
+        if (Object.keys(holdings).length === 0) {
+            priceInputsContainer.innerHTML = '<p class="no-holdings">暂无持仓记录</p>';
+            return;
+        }
+
+        Object.values(holdings).forEach(stock => {
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'price-input-group';
+            
+            inputGroup.innerHTML = `
+                <label for="price-${stock.code}">${stock.name} (${stock.code})</label>
+                <div class="price-input-wrapper">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" 
+                           id="price-${stock.code}" 
+                           class="price-input" 
+                           step="0.01" 
+                           min="0" 
+                           placeholder="${stock.avgCost.toFixed(2)}"
+                           value="${userPrices[stock.code] || ''}">
+                </div>
+            `;
+            
+            priceInputsContainer.appendChild(inputGroup);
+        });
+    }
+
     // 渲染收益分析
     function renderProfitAnalysis() {
         const transactions = getTransactions();
@@ -252,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalReturnElement = document.getElementById('total-return');
         
         // 处理总盈亏显示
-        if (profitData.totalProfit === 0) {
+        if (Math.abs(profitData.totalProfit) < 0.01) {
             totalPnlElement.textContent = '持平';
             totalPnlElement.className = 'profit-value neutral';
         } else {
@@ -261,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // 处理总收益率显示
-        if (profitData.totalProfitPercent === 0) {
+        if (Math.abs(profitData.totalProfitPercent) < 0.01) {
             totalReturnElement.textContent = '持平';
             totalReturnElement.className = 'profit-value neutral';
         } else {
@@ -286,33 +340,37 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="stock-name">${stock.name}</div>
                         <div class="stock-code">${stock.code}</div>
                     </div>
-                    <div class="profit-status ${stock.profit > 0 ? 'positive' : stock.profit < 0 ? 'negative' : 'neutral'}">
-                        ${stock.profit > 0 ? '盈利' : stock.profit < 0 ? '亏损' : '持平'}
+                    <div class="profit-status ${stock.profit > 0.01 ? 'positive' : stock.profit < -0.01 ? 'negative' : 'neutral'}">
+                        ${stock.profit > 0.01 ? '盈利' : stock.profit < -0.01 ? '亏损' : '持平'}
                     </div>
                 </div>
                 <div class="profit-item-details">
                     <div class="profit-col">
                         <span class="label">持仓</span>
-                        <span class="value">${stock.quantity.toLocaleString('en-US')}</span>
+                        <span class="value value-quantity">${stock.quantity.toLocaleString('en-US')}</span>
                     </div>
                     <div class="profit-col">
                         <span class="label">成本</span>
-                        <span class="value">$${stock.avgCost.toFixed(2)}</span>
+                        <span class="value value-cost">$${stock.avgCost.toFixed(2)}</span>
+                    </div>
+                    <div class="profit-col">
+                        <span class="label">现价</span>
+                        <span class="value value-current-price">$${stock.currentPrice.toFixed(2)}</span>
                     </div>
                     <div class="profit-col">
                         <span class="label">市值</span>
-                        <span class="value">$${stock.currentValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+                        <span class="value value-market-value">$${stock.currentValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
                     </div>
                     <div class="profit-col">
                         <span class="label">盈亏</span>
-                        <span class="value ${stock.profit > 0 ? 'positive' : stock.profit < 0 ? 'negative' : 'neutral'}">
-                            ${stock.profit > 0 ? '+' : ''}${stock.profit === 0 ? '持平' : `$${stock.profit.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+                        <span class="value ${stock.profit > 0.01 ? 'positive' : stock.profit < -0.01 ? 'negative' : 'neutral'}">
+                            ${stock.profit > 0.01 ? '+' : ''}${Math.abs(stock.profit) < 0.01 ? '持平' : `$${stock.profit.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
                         </span>
                     </div>
                     <div class="profit-col">
                         <span class="label">收益率</span>
-                        <span class="value ${stock.profitPercent > 0 ? 'positive' : stock.profitPercent < 0 ? 'negative' : 'neutral'}">
-                            ${stock.profitPercent > 0 ? '+' : ''}${stock.profitPercent === 0 ? '持平' : `${stock.profitPercent.toFixed(2)}%`}
+                        <span class="value ${stock.profitPercent > 0.01 ? 'positive' : stock.profitPercent < -0.01 ? 'negative' : 'neutral'}">
+                            ${stock.profitPercent > 0.01 ? '+' : ''}${Math.abs(stock.profitPercent) < 0.01 ? '持平' : `${stock.profitPercent.toFixed(2)}%`}
                         </span>
                     </div>
                 </div>
@@ -336,6 +394,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     navButtons.history.addEventListener('click', () => switchView('history'));
     navButtons.profit.addEventListener('click', () => switchView('profit'));
+
+    // 更新价格按钮事件监听
+    document.getElementById('update-prices-btn').addEventListener('click', () => {
+        const transactions = getTransactions();
+        const holdings = calculateHoldings(transactions);
+        
+        // 收集用户输入的价格
+        Object.values(holdings).forEach(stock => {
+            const input = document.getElementById(`price-${stock.code}`);
+            if (input && input.value) {
+                userPrices[stock.code] = parseFloat(input.value);
+            }
+        });
+        
+        // 保存价格并重新渲染
+        saveUserPrices();
+        renderProfitAnalysis();
+    });
 
     cancelBtn.addEventListener('click', () => {
         transactionForm.reset();
@@ -375,6 +451,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 初始化 ---
+    // 加载用户输入的价格
+    loadUserPrices();
+    
     // 从localStorage恢复tab状态，如果没有则默认为holdings
     const savedTab = localStorage.getItem(tabStateKey) || 'holdings';
     switchView(savedTab);

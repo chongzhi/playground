@@ -315,7 +315,7 @@ main {
 
 .profit-item-details {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
     font-size: 0.9rem;
 }
@@ -338,6 +338,23 @@ main {
     color: var(--text-color);
 }
 
+/* 盈亏页面字段颜色与其他页面保持一致 */
+.profit-col .value-quantity {
+    color: #007BFF; /* 蓝色，与持仓页面数量颜色一致 */
+}
+
+.profit-col .value-cost {
+    color: #E67E22; /* 橙色，与价格颜色一致 */
+}
+
+.profit-col .value-current-price {
+    color: #E67E22; /* 橙色，与价格颜色一致 */
+}
+
+.profit-col .value-market-value {
+    color: #E67E22; /* 橙色，与总值颜色一致 */
+}
+
 .profit-col .value.positive {
     color: #D32F2F;
 }
@@ -348,6 +365,79 @@ main {
 
 .profit-col .value.neutral {
     color: #9E9E9E;
+}
+
+/* 价格输入区域样式 */
+.price-input-section {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.price-input-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+#price-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.price-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.price-input-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 0.75rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.price-input {
+    width: 100%;
+    padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+.price-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.no-holdings {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+}
+
+#update-prices-btn {
+    width: 100%;
+    margin-top: 0.5rem;
 }
 
 /* 空状态 */
