@@ -52,16 +52,22 @@ main {
 }
 
 /* 列表通用样式 */
+#holdings-list,
+#history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .list-item {
     background-color: var(--card-bg-color);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.5rem 1rem;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .item-main-info .stock-name {
@@ -124,8 +130,9 @@ main {
 
 /* 持仓列表特定样式 */
 #holdings-list .item-details {
-    grid-template-columns: repeat(3, 1fr);
     display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
 }
 
 /* 历史记录特定样式 */
@@ -140,8 +147,9 @@ main {
 }
 
 #history-list .item-details {
-    grid-template-columns: repeat(4, 1fr);
     display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
 }
 
 /* 删除按钮样式 */
@@ -163,8 +171,14 @@ main {
 
 /* 历史记录列表项布局调整 */
 #history-list .list-item {
-    grid-template-columns: 1fr auto;
-    gap: 0.5rem 1rem;
+    position: relative;
+}
+
+#history-list .delete-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    margin-top: 0;
 }
 
 /* 空状态 */
