@@ -15,11 +15,15 @@
         <main>
             <!-- 持仓概览视图 -->
             <div id="holdings-view" class="view active">
-                <!-- 总市值概览 -->
+                <!-- 账户概览 -->
                 <div id="holdings-overview" class="holdings-overview">
                     <div class="holdings-card total-value">
                         <div class="holdings-label">总市值</div>
                         <div class="holdings-value" id="holdings-total-value">$0</div>
+                    </div>
+                    <div class="holdings-card account-balance">
+                        <div class="holdings-label">账户余额</div>
+                        <div class="holdings-value" id="account-balance">$0</div>
                     </div>
                 </div>
 
@@ -121,6 +125,32 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 设置视图 -->
+            <div id="settings-view" class="view">
+                <div class="settings-section">
+                    <h3>账户设置</h3>
+                    <div class="form-group">
+                        <label for="initial-funds">初始资金</label>
+                        <div class="input-button-group">
+                            <div class="input-wrapper">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="initial-funds" step="0.01" min="0" placeholder="请输入初始资金">
+                            </div>
+                            <button id="save-settings-btn" class="btn btn-primary">保存设置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>数据管理</h3>
+                    <div class="settings-actions">
+                        <button id="export-data-btn" class="btn">导出数据</button>
+                        <button id="import-data-btn" class="btn">导入数据</button>
+                        <button id="clear-data-btn" class="btn btn-danger">清空数据</button>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <footer>
@@ -128,6 +158,7 @@
                 <button id="nav-holdings" class="nav-btn active" data-view="holdings-view">持仓</button>
                 <button id="nav-history" class="nav-btn" data-view="history-view">历史</button>
                 <button id="nav-profit" class="nav-btn" data-view="profit-view">盈亏</button>
+                <button id="nav-settings" class="nav-btn" data-view="settings-view">设置</button>
                 <button id="nav-add" class="nav-btn-add" data-view="transaction-view">+</button>
             </nav>
         </footer>

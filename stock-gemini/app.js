@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         transaction: document.getElementById('transaction-view'),
         history: document.getElementById('history-view'),
         profit: document.getElementById('profit-view'),
+        settings: document.getElementById('settings-view'),
     };
 
     const navButtons = {
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         add: document.getElementById('nav-add'),
         history: document.getElementById('nav-history'),
         profit: document.getElementById('nav-profit'),
+        settings: document.getElementById('nav-settings'),
     };
 
     const headerTitle = document.getElementById('header-title');
@@ -74,6 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderPriceInputs();
                 renderProfitAnalysis();
                 break;
+            case 'settings':
+                headerTitle.textContent = '设置';
+                renderSettings();
+                break;
         }
     }
 
@@ -91,10 +97,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // 计算人民币价值（汇率7.2）
         const rmbValue = totalValue * 7.2;
 
+        // 计算账户余额
+        const accountBalance = calculateAccountBalance(transactions);
+        const rmbBalance = accountBalance * 7.2;
+
         // 更新总市值显示
         document.getElementById('holdings-total-value').innerHTML = `
             <div class="usd-value">$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
             <div class="rmb-value">¥${rmbValue.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
+        `;
+
+        // 更新账户余额显示
+        document.getElementById('account-balance').innerHTML = `
+            <div class="usd-value">$${accountBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+            <div class="rmb-value">¥${rmbBalance.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
         `;
 
         holdingsList.innerHTML = '';
@@ -243,6 +259,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return Object.fromEntries(Object.entries(holdings).filter(([_, stock]) => stock.quantity > 0));
     }
 
+    // --- 计算账户余额 ---
+    function calculateAccountBalance(transactions) {
+        let balance = initialFunds; // 从初始资金开始
+        
+        // 按日期排序，确保交易按时间顺序处理
+        const sortedTransactions = transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        sortedTransactions.forEach(tx => {
+            if (tx.type === 'buy') {
+                // 买入：减少账户余额
+                balance -= tx.price * tx.quantity;
+            } else { // sell
+                // 卖出：增加账户余额
+                balance += tx.price * tx.quantity;
+            }
+        });
+        
+        return balance;
+    }
+
     // --- 用户输入的价格数据 ---
     let userPrices = {};
     const priceStorageKey = 'userStockPrices';
@@ -256,6 +292,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 保存用户输入的价格到localStorage
     function saveUserPrices() {
         localStorage.setItem(priceStorageKey, JSON.stringify(userPrices));
+    }
+
+    // --- 初始资金管理 ---
+    let initialFunds = 0;
+    const initialFundsKey = 'initialFunds';
+
+    // 从localStorage加载初始资金
+    function loadInitialFunds() {
+        const saved = localStorage.getItem(initialFundsKey);
+        initialFunds = saved ? parseFloat(saved) : 0;
+    }
+
+    // 保存初始资金到localStorage
+    function saveInitialFunds() {
+        localStorage.setItem(initialFundsKey, initialFunds.toString());
     }
 
     // --- 收益分析逻辑 ---
@@ -328,6 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             priceInputsContainer.appendChild(inputGroup);
         });
+    }
+
+    // 渲染设置页面
+    function renderSettings() {
+        document.getElementById('initial-funds').value = initialFunds;
     }
 
     // 渲染收益分析
@@ -432,6 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     navButtons.history.addEventListener('click', () => switchView('history'));
     navButtons.profit.addEventListener('click', () => switchView('profit'));
+    navButtons.settings.addEventListener('click', () => switchView('settings'));
 
     // 更新价格按钮事件监听
     document.getElementById('update-prices-btn').addEventListener('click', () => {
@@ -449,6 +506,89 @@ document.addEventListener('DOMContentLoaded', () => {
         // 保存价格并重新渲染
         saveUserPrices();
         renderProfitAnalysis();
+    });
+
+    // 保存设置按钮事件监听
+    document.getElementById('save-settings-btn').addEventListener('click', () => {
+        const newInitialFunds = parseFloat(document.getElementById('initial-funds').value) || 0;
+        initialFunds = newInitialFunds;
+        saveInitialFunds();
+        
+        // 重新渲染持仓页面以更新账户余额
+        renderHoldings();
+        
+        alert('设置已保存！');
+    });
+
+    // 导出数据按钮事件监听
+    document.getElementById('export-data-btn').addEventListener('click', () => {
+        const data = {
+            transactions: getTransactions(),
+            userPrices: userPrices,
+            initialFunds: initialFunds
+        };
+        
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `stock-data-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+    });
+
+    // 导入数据按钮事件监听
+    document.getElementById('import-data-btn').addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (data.transactions) {
+                            saveTransactions(data.transactions);
+                        }
+                        if (data.userPrices) {
+                            userPrices = data.userPrices;
+                            saveUserPrices();
+                        }
+                        if (data.initialFunds !== undefined) {
+                            initialFunds = data.initialFunds;
+                            saveInitialFunds();
+                        }
+                        
+                        // 重新渲染所有页面
+                        renderHoldings();
+                        renderHistory();
+                        renderSettings();
+                        
+                        alert('数据导入成功！');
+                    } catch (error) {
+                        alert('数据导入失败，请检查文件格式！');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        
+        input.click();
+    });
+
+    // 清空数据按钮事件监听
+    document.getElementById('clear-data-btn').addEventListener('click', () => {
+        if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+            localStorage.clear();
+            location.reload();
+        }
     });
 
     cancelBtn.addEventListener('click', () => {
@@ -489,8 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 初始化 ---
-    // 加载用户输入的价格
+    // 加载用户输入的价格和初始资金
     loadUserPrices();
+    loadInitialFunds();
     
     // 监听系统主题变化
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

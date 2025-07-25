@@ -493,7 +493,7 @@ main {
 /* 持仓页面总市值概览样式 */
 .holdings-overview {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -527,6 +527,11 @@ main {
     color: #E67E22; /* 橙色，与其他页面市值颜色保持一致 */
 }
 
+/* 账户余额样式 */
+.account-balance .holdings-value {
+    color: #4CAF50; /* 绿色，表示资金 */
+}
+
 .holdings-value .rmb-value {
     font-size: 1.2rem;
     font-weight: 500;
@@ -540,6 +545,10 @@ main {
     
     .holdings-value .rmb-value {
         color: #999;
+    }
+    
+    .account-balance .holdings-value {
+        color: #66BB6A; /* 深色主题下的绿色 */
     }
 }
 
@@ -679,4 +688,88 @@ nav {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     position: relative;
     order: 1; /* 确保添加按钮始终在最右侧 */
+}
+
+/* 设置页面样式 */
+.settings-section {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.settings-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.settings-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper .currency-symbol {
+    position: absolute;
+    left: 0.75rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+/* 输入框和按钮组合样式 */
+.input-button-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.input-button-group .input-wrapper {
+    flex: 1;
+}
+
+.input-button-group .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+    height: calc(100% - 2px); /* 减去边框高度，确保与输入框等高 */
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+    .input-wrapper input {
+        background-color: #3d3d3d;
+        color: #fff;
+    }
+    
+    .input-wrapper .currency-symbol {
+        color: #999;
+    }
+}
+
+.btn-danger {
+    background-color: #f44336;
+    color: white;
+    border-color: #f44336;
+}
+
+.btn-danger:hover {
+    background-color: #d32f2f;
 }
