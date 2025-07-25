@@ -251,11 +251,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalPnlElement = document.getElementById('total-pnl');
         const totalReturnElement = document.getElementById('total-return');
         
-        totalPnlElement.textContent = `${profitData.totalProfit >= 0 ? '+' : ''}$${profitData.totalProfit.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-        totalPnlElement.className = `profit-value ${profitData.totalProfit >= 0 ? 'positive' : 'negative'}`;
+        // 处理总盈亏显示
+        if (profitData.totalProfit === 0) {
+            totalPnlElement.textContent = '持平';
+            totalPnlElement.className = 'profit-value neutral';
+        } else {
+            totalPnlElement.textContent = `${profitData.totalProfit > 0 ? '+' : ''}$${profitData.totalProfit.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+            totalPnlElement.className = `profit-value ${profitData.totalProfit > 0 ? 'positive' : 'negative'}`;
+        }
         
-        totalReturnElement.textContent = `${profitData.totalProfitPercent >= 0 ? '+' : ''}${profitData.totalProfitPercent.toFixed(2)}%`;
-        totalReturnElement.className = `profit-value ${profitData.totalProfitPercent >= 0 ? 'positive' : 'negative'}`;
+        // 处理总收益率显示
+        if (profitData.totalProfitPercent === 0) {
+            totalReturnElement.textContent = '持平';
+            totalReturnElement.className = 'profit-value neutral';
+        } else {
+            totalReturnElement.textContent = `${profitData.totalProfitPercent > 0 ? '+' : ''}${profitData.totalProfitPercent.toFixed(2)}%`;
+            totalReturnElement.className = `profit-value ${profitData.totalProfitPercent > 0 ? 'positive' : 'negative'}`;
+        }
 
         // 渲染个股收益明细
         profitList.innerHTML = '';
@@ -274,8 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="stock-name">${stock.name}</div>
                         <div class="stock-code">${stock.code}</div>
                     </div>
-                    <div class="profit-status ${stock.profit >= 0 ? 'positive' : 'negative'}">
-                        ${stock.profit >= 0 ? '盈利' : '亏损'}
+                    <div class="profit-status ${stock.profit > 0 ? 'positive' : stock.profit < 0 ? 'negative' : 'neutral'}">
+                        ${stock.profit > 0 ? '盈利' : stock.profit < 0 ? '亏损' : '持平'}
                     </div>
                 </div>
                 <div class="profit-item-details">
@@ -293,14 +305,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="profit-col">
                         <span class="label">盈亏</span>
-                        <span class="value ${stock.profit >= 0 ? 'positive' : 'negative'}">
-                            ${stock.profit >= 0 ? '+' : ''}$${stock.profit.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                        <span class="value ${stock.profit > 0 ? 'positive' : stock.profit < 0 ? 'negative' : 'neutral'}">
+                            ${stock.profit > 0 ? '+' : ''}${stock.profit === 0 ? '持平' : `$${stock.profit.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
                         </span>
                     </div>
                     <div class="profit-col">
                         <span class="label">收益率</span>
-                        <span class="value ${stock.profitPercent >= 0 ? 'positive' : 'negative'}">
-                            ${stock.profitPercent >= 0 ? '+' : ''}${stock.profitPercent.toFixed(2)}%
+                        <span class="value ${stock.profitPercent > 0 ? 'positive' : stock.profitPercent < 0 ? 'negative' : 'neutral'}">
+                            ${stock.profitPercent > 0 ? '+' : ''}${stock.profitPercent === 0 ? '持平' : `${stock.profitPercent.toFixed(2)}%`}
                         </span>
                     </div>
                 </div>

@@ -220,6 +220,12 @@ main {
     margin-bottom: 2rem;
 }
 
+#profit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .profit-card {
     background-color: var(--card-bg-color);
     border-radius: 8px;
@@ -246,6 +252,10 @@ main {
 
 .profit-value.negative {
     color: #388E3C;
+}
+
+.profit-value.neutral {
+    color: #9E9E9E;
 }
 
 #profit-details h3 {
@@ -298,6 +308,11 @@ main {
     color: white;
 }
 
+.profit-status.neutral {
+    background-color: #9E9E9E;
+    color: white;
+}
+
 .profit-item-details {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -329,6 +344,10 @@ main {
 
 .profit-col .value.negative {
     color: #388E3C;
+}
+
+.profit-col .value.neutral {
+    color: #9E9E9E;
 }
 
 /* 空状态 */
