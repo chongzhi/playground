@@ -110,9 +110,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="item-col-3"><span>数量</span><span class="value-quantity">${tx.quantity.toLocaleString('en-US')}</span></div>
                     <div class="item-col-4"><span>总值</span><span class="value-total">${(tx.price * tx.quantity).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
                 </div>
+                <button class="delete-btn" data-id="${tx.id}">删除</button>
             `;
+            
+            // 添加删除按钮事件监听
+            const deleteBtn = item.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', () => deleteTransaction(tx.id));
+            
             historyList.appendChild(item);
         });
+    }
+
+    // --- 删除功能 ---
+    function deleteTransaction(transactionId) {
+        if (confirm('确定要删除这条交易记录吗？')) {
+            const transactions = getTransactions();
+            const updatedTransactions = transactions.filter(tx => tx.id !== transactionId);
+            saveTransactions(updatedTransactions);
+            renderHistory();
+            renderHoldings(); // 重新计算持仓
+        }
     }
 
     // --- 计算逻辑 ---
