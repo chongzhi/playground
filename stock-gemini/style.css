@@ -101,7 +101,7 @@ main {
 
 .item-details {
     font-size: 0.9rem;
-    color: #555;
+    color: #999; /* 从#555改为#999（约80%透明度） */
     grid-column: 1 / -1; /* Span across all columns */
     display: flex;
     justify-content: space-between;
@@ -112,7 +112,7 @@ main {
 
 @media (prefers-color-scheme: dark) {
     .item-details {
-        color: #ccc;
+        color: #aaa; /* 从#ccc改为#aaa（约80%透明度） */
     }
 }
 
@@ -139,12 +139,12 @@ main {
 }
 
 .value-price {
-    color: #E67E22; /* 橙色 */
+    color: var(--text-color); /* 普通颜色 */
     font-weight: 500;
 }
 
 .value-total {
-    color: #E67E22; /* 橙色，与价格保持一致 */
+    color: var(--text-color); /* 普通颜色 */
     font-weight: 500;
 }
 
@@ -261,7 +261,7 @@ main {
 
 .profit-label {
     font-size: 0.85rem;
-    color: #666;
+    color: #999; /* 从#666改为#999（约80%透明度） */
     margin-bottom: 0.5rem;
 }
 
@@ -286,7 +286,7 @@ main {
 #profit-details h3 {
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
-    color: var(--text-color);
+    color: var(--text-color); /* 恢复原有颜色 */
 }
 
 .profit-item {
@@ -312,7 +312,7 @@ main {
 
 .profit-item-header .stock-info .stock-code {
     font-size: 0.85rem;
-    color: #666;
+    color: #999; /* 从#666改为#999（约80%透明度） */
     margin-top: 0.25rem;
 }
 
@@ -353,14 +353,14 @@ main {
 }
 
 .profit-col .label {
-    color: #666;
+    color: #999; /* 从#666改为#999（约80%透明度） */
     margin-bottom: 0.25rem;
     font-size: 0.8rem;
 }
 
 @media (prefers-color-scheme: dark) {
     .profit-col .label {
-        color: #999;
+        color: #ccc; /* 从#999改为#ccc（约80%透明度） */
     }
 }
 
@@ -375,15 +375,15 @@ main {
 }
 
 .profit-col .value-cost {
-    color: #E67E22; /* 橙色，与价格颜色一致 */
+    color: var(--text-color); /* 普通颜色 */
 }
 
 .profit-col .value-current-price {
-    color: #E67E22; /* 橙色，与价格颜色一致 */
+    color: var(--text-color); /* 普通颜色 */
 }
 
 .profit-col .value-market-value {
-    color: #E67E22; /* 橙色，与总值颜色一致 */
+    color: var(--text-color); /* 普通颜色 */
 }
 
 .profit-col .value.positive {
@@ -410,7 +410,7 @@ main {
 .price-input-section h3 {
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
-    color: var(--text-color);
+    color: var(--text-color); /* 恢复原有颜色 */
 }
 
 #price-inputs {
@@ -429,7 +429,7 @@ main {
 .price-input-group label {
     font-size: 0.9rem;
     font-weight: 500;
-    color: var(--text-color);
+    color: #999; /* 使用浅色 */
 }
 
 .price-input-wrapper {
@@ -508,7 +508,7 @@ main {
 
 .holdings-label {
     font-size: 0.9rem;
-    color: #666;
+    color: #999; /* 从#666改为#999（约80%透明度） */
     margin-bottom: 0.5rem;
 }
 
@@ -550,6 +550,14 @@ main {
     .account-balance .holdings-value {
         color: #66BB6A; /* 深色主题下的绿色 */
     }
+    
+    .value-price,
+    .value-total,
+    .profit-col .value-cost,
+    .profit-col .value-current-price,
+    .profit-col .value-market-value {
+        color: #ffffff; /* 深色主题下的白色 */
+    }
 }
 
 /* 空状态 */
@@ -580,12 +588,12 @@ main {
 .form-group label {
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #555;
+    color: #999; /* 从#555改为#999（约80%透明度） */
 }
 
 @media (prefers-color-scheme: dark) {
     .form-group label {
-        color: #ccc;
+        color: #aaa; /* 从#ccc改为#aaa（约80%透明度） */
     }
 }
 
@@ -702,7 +710,7 @@ nav {
 .settings-section h3 {
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
-    color: var(--text-color);
+    color: var(--text-color); /* 恢复原有颜色 */
 }
 
 .settings-actions {
