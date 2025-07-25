@@ -135,24 +135,20 @@
         }
 
         .board-grid {
+            display: none;
+        }
+
+        .board-points {
             position: absolute;
             top: 30px;
             left: 30px;
-            right: 30px;
-            bottom: 30px;
+            width: 480px;
+            height: 540px;
             background-image: 
                 linear-gradient(90deg, #8B4513 1px, transparent 1px),
                 linear-gradient(#8B4513 1px, transparent 1px);
             background-size: 60px 60px;
             background-position: 0 0;
-        }
-
-        .board-points {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
         }
 
         .board {
@@ -161,8 +157,8 @@
 
         .point {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -170,6 +166,9 @@
             justify-content: center;
             transform: translate(-50%, -50%);
             z-index: 5;
+            pointer-events: auto;
+            margin-left: 0;
+            margin-top: 0;
         }
 
         .point:hover {
@@ -199,7 +198,10 @@
             cursor: pointer;
             position: absolute;
             transform: translate(-50%, -50%);
-            z-index: 10;
+            z-index: 15;
+            pointer-events: auto;
+            margin-left: 0;
+            margin-top: 0;
         }
 
         .piece.red {
@@ -215,7 +217,8 @@
         }
 
         .piece:hover {
-            transform: scale(1.1);
+            transform: translate(-50%, -50%) scale(1.1);
+            z-index: 20;
         }
 
         .piece.selected {
@@ -225,15 +228,53 @@
 
         .river {
             position: absolute;
-            top: 50%;
-            left: 30px;
-            right: 30px;
+            top: 270px;
+            left: 0;
+            right: 0;
             height: 60px;
             background: rgba(173, 216, 230, 0.3);
             border-top: 1px solid rgba(135, 206, 235, 0.4);
             border-bottom: 1px solid rgba(135, 206, 235, 0.4);
-            margin-top: -30px;
             pointer-events: none;
+        }
+
+        .palace-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .palace-lines .diagonal {
+            position: absolute;
+            width: 1px;
+            height: 120px;
+            background: #8B4513;
+            transform-origin: center;
+        }
+
+        .diagonal.bottom-left {
+            top: 210px;
+            left: 180px;
+            transform: rotate(45deg);
+        }
+
+        .diagonal.bottom-right {
+            top: 210px;
+            left: 300px;
+            transform: rotate(-45deg);
+        }
+
+        .diagonal.top-left {
+            top: 30px;
+            left: 180px;
+            transform: rotate(45deg);
+        }
+
+        .diagonal.top-right {
+            top: 30px;
+            left: 300px;
+            transform: rotate(-45deg);
         }
 
 
@@ -324,6 +365,12 @@
                 <div class="board-grid"></div>
                 <div class="river"></div>
                 <div class="board-points" id="board"></div>
+                <div class="palace-lines">
+                    <div class="diagonal bottom-left"></div>
+                    <div class="diagonal bottom-right"></div>
+                    <div class="diagonal top-left"></div>
+                    <div class="diagonal top-right"></div>
+                </div>
             </div>
         </div>
 
@@ -403,53 +450,15 @@
                 const boardElement = document.getElementById('board');
                 boardElement.innerHTML = '';
 
+                // 创建交叉点
                 for (let row = 0; row < 10; row++) {
                     for (let col = 0; col < 9; col++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'cell';
-                        cell.dataset.row = row;
-                        cell.dataset.col = col;
-
-                        // 添加特殊地形和九宫格
-                        if ((row >= 4 && row <= 5)) {
-                            cell.classList.add('river');
-                        }
-                        if (row >= 7 && row <= 9 && col >= 3 && col <= 5) {
-                            cell.style.background = '#fff3e0';
-                            // 添加九宫格对角线
-                            if ((row === 7 && col === 3) || (row === 7 && col === 5) || (row === 9 && col === 3) || (row === 9 && col === 5)) {
-                                const diagonal = document.createElement('div');
-                                diagonal.style.position = 'absolute';
-                                diagonal.style.width = '84px';
-                                diagonal.style.height = '1px';
-                                diagonal.style.background = '#8B4513';
-                                diagonal.style.transform = (row === 7 && col === 3) || (row === 9 && col === 5) ? 'rotate(45deg)' : 'rotate(-45deg)';
-                                diagonal.style.transformOrigin = 'center';
-                                diagonal.style.left = '-12px';
-                                diagonal.style.top = '30px';
-                                diagonal.style.pointerEvents = 'none';
-                                cell.style.position = 'relative';
-                                cell.appendChild(diagonal);
-                            }
-                        }
-                        if (row >= 0 && row <= 2 && col >= 3 && col <= 5) {
-                            cell.style.background = '#fff3e0';
-                            // 添加九宫格对角线
-                            if ((row === 0 && col === 3) || (row === 0 && col === 5) || (row === 2 && col === 3) || (row === 2 && col === 5)) {
-                                const diagonal = document.createElement('div');
-                                diagonal.style.position = 'absolute';
-                                diagonal.style.width = '84px';
-                                diagonal.style.height = '1px';
-                                diagonal.style.background = '#8B4513';
-                                diagonal.style.transform = (row === 0 && col === 3) || (row === 2 && col === 5) ? 'rotate(45deg)' : 'rotate(-45deg)';
-                                diagonal.style.transformOrigin = 'center';
-                                diagonal.style.left = '-12px';
-                                diagonal.style.top = '30px';
-                                diagonal.style.pointerEvents = 'none';
-                                cell.style.position = 'relative';
-                                cell.appendChild(diagonal);
-                            }
-                        }
+                        const point = document.createElement('div');
+                        point.className = 'point';
+                        point.dataset.row = row;
+                        point.dataset.col = col;
+                        point.style.left = (col * 60) + 'px';
+                        point.style.top = (row * 60) + 'px';
 
                         const piece = this.board[row][col];
                         if (piece) {
@@ -457,10 +466,12 @@
                             pieceElement.className = `piece ${piece.player}`;
                             pieceElement.textContent = piece.symbol;
                             pieceElement.title = `${piece.type} (${piece.player === 'red' ? '红方' : '黑方'})`;
-                            cell.appendChild(pieceElement);
+                            pieceElement.style.left = (col * 60) + 'px';
+                            pieceElement.style.top = (row * 60) + 'px';
+                            boardElement.appendChild(pieceElement);
                         }
 
-                        boardElement.appendChild(cell);
+                        boardElement.appendChild(point);
                     }
                 }
             }

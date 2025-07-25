@@ -1,0 +1,920 @@
+ <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞行棋游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .game-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-board {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto 30px;
+            background: #f8f9fa;
+            border: 3px solid #333;
+            border-radius: 10px;
+        }
+
+        .cell {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .cell:hover {
+            background: #f0f0f0;
+        }
+
+        /* 起飞区域 */
+        .home-area {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            padding: 8px;
+        }
+
+        .home-red { background: #ffebee; border-color: #f44336; top: 90px; left: 90px; }
+        .home-blue { background: #e3f2fd; border-color: #2196f3; top: 90px; right: 90px; }
+        .home-yellow { background: #fffde7; border-color: #ffeb3b; bottom: 90px; right: 90px; }
+        .home-green { background: #e8f5e8; border-color: #4caf50; bottom: 90px; left: 90px; }
+
+        .home-cell {
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            position: relative;
+            min-height: 35px;
+        }
+
+        /* 游戏棋子 */
+        .piece {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+            box-sizing: border-box;
+        }
+
+        .piece:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .piece.movable {
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .piece-red { background: #f44336; }
+        .piece-blue { background: #2196f3; }
+        .piece-yellow { background: #ffeb3b; }
+        .piece-green { background: #4caf50; }
+
+
+        /* 特殊格子 */
+        .start-cell { background: linear-gradient(45deg, #ffd700, #ffed4e) !important; }
+        .safe-cell { background: linear-gradient(45deg, #90caf9, #42a5f5) !important; }
+        .end-zone { background: linear-gradient(45deg, #a5d6a7, #66bb6a) !important; }
+
+        /* 控制面板 */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .players-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .player-info.active {
+            border-color: #007bff;
+            background: #e7f3ff;
+            transform: scale(1.05);
+        }
+
+        .player-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+
+        .dice-container {
+            text-align: center;
+        }
+
+        .dice {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #333;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px auto;
+        }
+
+        .dice:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dice.rolling {
+            animation: roll 1s ease-in-out;
+        }
+
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .winner-message {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .game-board {
+                width: 90vw;
+                height: 90vw;
+                max-width: 500px;
+                max-height: 500px;
+            }
+            
+            .players-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .game-title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="window.location.href='index.html'">返回大厅</button>
+            <h1 class="game-title" style="margin: 0; flex: 1; text-align: center;">🛩️ 飞行棋游戏 ✈️</h1>
+            <button class="btn btn-primary" onclick="resetGame()">重新开始</button>
+        </div>
+        
+        <div class="game-board" id="gameBoard">
+            <!-- 红色起点区域 -->
+            <div class="home-area home-red" id="homeRed">
+                <div class="home-cell" data-home="red" data-index="0"></div>
+                <div class="home-cell" data-home="red" data-index="1"></div>
+                <div class="home-cell" data-home="red" data-index="2"></div>
+                <div class="home-cell" data-home="red" data-index="3"></div>
+            </div>
+            
+            <!-- 蓝色起点区域 -->
+            <div class="home-area home-blue" id="homeBlue">
+                <div class="home-cell" data-home="blue" data-index="0"></div>
+                <div class="home-cell" data-home="blue" data-index="1"></div>
+                <div class="home-cell" data-home="blue" data-index="2"></div>
+                <div class="home-cell" data-home="blue" data-index="3"></div>
+            </div>
+            
+            <!-- 黄色起点区域 -->
+            <div class="home-area home-yellow" id="homeYellow">
+                <div class="home-cell" data-home="yellow" data-index="0"></div>
+                <div class="home-cell" data-home="yellow" data-index="1"></div>
+                <div class="home-cell" data-home="yellow" data-index="2"></div>
+                <div class="home-cell" data-home="yellow" data-index="3"></div>
+            </div>
+            
+            <!-- 绿色起点区域 -->
+            <div class="home-area home-green" id="homeGreen">
+                <div class="home-cell" data-home="green" data-index="0"></div>
+                <div class="home-cell" data-home="green" data-index="1"></div>
+                <div class="home-cell" data-home="green" data-index="2"></div>
+                <div class="home-cell" data-home="green" data-index="3"></div>
+            </div>
+        </div>
+        
+        <div class="game-status" id="gameStatus">红色玩家回合 - 投掷骰子开始游戏</div>
+        
+        <div class="control-panel">
+            <div class="dice-container">
+                <div class="dice" id="dice">🎲</div>
+                <button class="btn btn-primary" id="rollBtn">投掷骰子</button>
+            </div>
+            
+            <div class="players-row">
+                <div class="player-info active" id="playerRed">
+                    <div class="player-color piece-red"></div>
+                    <span>红色玩家</span>
+                    <span id="redScore">0/4</span>
+                </div>
+                
+                <div class="player-info" id="playerBlue">
+                    <div class="player-color piece-blue"></div>
+                    <span>蓝色玩家</span>
+                    <span id="blueScore">0/4</span>
+                </div>
+                
+                <div class="player-info" id="playerYellow">
+                    <div class="player-color piece-yellow"></div>
+                    <span>黄色玩家</span>
+                    <span id="yellowScore">0/4</span>
+                </div>
+                
+                <div class="player-info" id="playerGreen">
+                    <div class="player-color piece-green"></div>
+                    <span>绿色玩家</span>
+                    <span id="greenScore">0/4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            currentPlayer: 0, // 0:红, 1:蓝, 2:黄, 3:绿
+            players: ['red', 'blue', 'yellow', 'green'],
+            diceValue: 0,
+            gameOver: false,
+            rollCount: 0,
+            maxRolls: 3,
+            hasMoved: false, // 标记当前回合是否已经移动过棋子
+            pieces: {
+                red: [null, null, null, null],
+                blue: [null, null, null, null],
+                yellow: [null, null, null, null],
+                green: [null, null, null, null]
+            }
+        };
+
+        // 棋盘配置 - 52个格子的正方形轨道
+        const boardConfig = {
+            // 起始位置（每个颜色的起飞点）
+            startPositions: { red: 6, blue: 19, yellow: 32, green: 45 },
+            // 安全点位置（每个颜色起飞点前方8格）
+            safePositions: [14, 27, 40, 1],  // 红、蓝、黄、绿的安全点
+            // 总格子数
+            totalCells: 52,
+            // 终点前的直道长度
+            finalStretch: 6
+        };
+
+        // 初始化游戏
+        function initGame() {
+            createBoard();
+            createPieces();
+            updateUI();
+        }
+
+        // 创建棋盘
+        function createBoard() {
+            const board = document.getElementById('gameBoard');
+            const cellSize = 40;
+            const margin = 50;
+            
+            // 定义四条边的格子数量（每边13个格子）
+            const sideLength = 13;
+            
+            // 创建外圈52个格子 - 正方形布局
+            for (let i = 0; i < 52; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.position = i;
+                
+                let x, y;
+                
+                if (i < 13) {
+                    // 上边 (0-12)
+                    x = margin + i * cellSize;
+                    y = margin;
+                } else if (i < 26) {
+                    // 右边 (13-25)
+                    x = margin + 12 * cellSize;
+                    y = margin + (i - 13) * cellSize;
+                } else if (i < 39) {
+                    // 下边 (26-38) - 从右到左
+                    x = margin + (12 - (i - 26)) * cellSize;
+                    y = margin + 12 * cellSize;
+                } else {
+                    // 左边 (39-51) - 从下到上
+                    x = margin;
+                    y = margin + (12 - (i - 39)) * cellSize;
+                }
+                
+                cell.style.left = x + 'px';
+                cell.style.top = y + 'px';
+                cell.textContent = i;
+                
+                // 标记特殊格子
+                if (boardConfig.startPositions.red === i || 
+                    boardConfig.startPositions.blue === i || 
+                    boardConfig.startPositions.yellow === i || 
+                    boardConfig.startPositions.green === i) {
+                    cell.classList.add('start-cell');
+                }
+                
+                if (boardConfig.safePositions.includes(i)) {
+                    cell.classList.add('safe-cell');
+                }
+                
+                board.appendChild(cell);
+            }
+
+            // 创建每个颜色的终点直道
+            createFinalStretch('red', margin + cellSize, margin + 6 * cellSize);
+            createFinalStretch('blue', margin + 6 * cellSize, margin + cellSize);
+            createFinalStretch('yellow', margin + 7 * cellSize, margin + 6 * cellSize);
+            createFinalStretch('green', margin + 6 * cellSize, margin + 7 * cellSize);
+        }
+
+        // 创建终点直道
+        function createFinalStretch(color, startX, startY) {
+            for (let i = 0; i < 6; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell end-zone';
+                cell.dataset.endZone = color;
+                cell.dataset.endPosition = i;
+                
+                if (color === 'red' || color === 'yellow') {
+                    cell.style.left = (startX + i * 40) + 'px';
+                    cell.style.top = startY + 'px';
+                } else {
+                    cell.style.left = startX + 'px';
+                    cell.style.top = (startY + i * 40) + 'px';
+                }
+                
+                cell.textContent = `${color[0].toUpperCase()}${i + 1}`;
+                document.getElementById('gameBoard').appendChild(cell);
+            }
+        }
+
+        // 创建棋子
+        function createPieces() {
+            gameState.players.forEach((color, playerIndex) => {
+                for (let i = 0; i < 4; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = `piece piece-${color}`;
+                    piece.dataset.player = color;
+                    piece.dataset.index = i;
+                    piece.textContent = '✈️';
+                    piece.onclick = () => movePiece(color, i);
+                    
+                    // 初始位置在家中
+                    const homeCell = document.querySelector(`[data-home="${color}"][data-index="${i}"]`);
+                    if (homeCell) {
+                        const rect = homeCell.getBoundingClientRect();
+                        const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
+                        // 计算居中位置：home-cell中心 - piece大小的一半
+                        const centerX = rect.left - boardRect.left + (rect.width / 2) - 12.5;
+                        const centerY = rect.top - boardRect.top + (rect.height / 2) - 12.5;
+                        piece.style.left = centerX + 'px';
+                        piece.style.top = centerY + 'px';
+                    }
+                    
+                    gameState.pieces[color][i] = { position: -1, inHome: true, finished: false };
+                    document.getElementById('gameBoard').appendChild(piece);
+                }
+            });
+        }
+
+        // 投掷骰子
+        function rollDice() {
+            if (gameState.gameOver || gameState.hasMoved) return;
+            
+            const dice = document.getElementById('dice');
+            const rollBtn = document.getElementById('rollBtn');
+            
+            // 重置移动标记
+            gameState.hasMoved = false;
+            
+            dice.classList.add('rolling');
+            rollBtn.disabled = true;
+            
+            // 模拟投掷动画
+            let rollAnimation = setInterval(() => {
+                dice.textContent = Math.floor(Math.random() * 6) + 1;
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(rollAnimation);
+                gameState.diceValue = Math.floor(Math.random() * 6) + 1;
+                dice.textContent = gameState.diceValue;
+                dice.classList.remove('rolling');
+                
+                handleDiceResult();
+            }, 1000);
+        }
+
+
+
+        // 处理骰子结果
+        function handleDiceResult() {
+            const currentPlayerColor = gameState.players[gameState.currentPlayer];
+            const rollBtn = document.getElementById('rollBtn');
+            
+            if (gameState.diceValue === 6) {
+                // 投到6点，可以选择棋子
+                const movablePieces = getMovablePieces(currentPlayerColor);
+                if (movablePieces.length > 0) {
+                    highlightMovablePieces(currentPlayerColor);
+                    
+                    // 检查是否有出动和移动两种选择
+                    const hasHomeOption = gameState.pieces[currentPlayerColor].some(piece => piece.inHome && !piece.finished);
+                    const hasBoardOption = gameState.pieces[currentPlayerColor].some(piece => !piece.inHome && !piece.finished);
+                    
+                    if (hasHomeOption && hasBoardOption) {
+                        updateStatus(`${getPlayerName(currentPlayerColor)} 投到了6点！可以选择出动新飞机或移动现有飞机`);
+                    } else if (hasHomeOption) {
+                        updateStatus(`${getPlayerName(currentPlayerColor)} 投到了6点！可以出动飞机`);
+                    } else {
+                        updateStatus(`${getPlayerName(currentPlayerColor)} 投到了6点！选择要移动的飞机`);
+                    }
+                    rollBtn.disabled = false;
+                } else {
+                    updateStatus(`${getPlayerName(currentPlayerColor)} 投到了6点，但没有棋子可以移动`);
+                    setTimeout(() => {
+                        nextPlayer();
+                    }, 500);
+                }
+            } else {
+                // 没投到6点，检查是否有棋子可以移动
+                const movablePieces = getMovablePieces(currentPlayerColor);
+                if (movablePieces.length > 0) {
+                    highlightMovablePieces(currentPlayerColor);
+                    updateStatus(`${getPlayerName(currentPlayerColor)} 投到了${gameState.diceValue}点，选择要移动的棋子`);
+                } else {
+                    updateStatus(`${getPlayerName(currentPlayerColor)} 投到了${gameState.diceValue}点，没有棋子可以移动`);
+                    setTimeout(() => {
+                        nextPlayer();
+                    }, 500);
+                }
+            }
+        }
+
+        // 获取可移动的棋子
+        function getMovablePieces(color) {
+            const pieces = gameState.pieces[color];
+            const movable = [];
+            
+            if (gameState.diceValue === 6) {
+                // 摇到6点：可以出动飞机或移动现有飞机
+                
+                // 1. 检查是否有在家的飞机可以出动（只能出动一台）
+                let hasHomeOption = false;
+                for (let i = 0; i < 4; i++) {
+                    const piece = pieces[i];
+                    if (piece.inHome && !piece.finished) {
+                        movable.push(i);
+                        hasHomeOption = true;
+                        break; // 只允许出动一台飞机
+                    }
+                }
+                
+                // 2. 检查在棋盘上的飞机是否可以移动6格
+                for (let i = 0; i < 4; i++) {
+                    const piece = pieces[i];
+                    if (!piece.inHome && !piece.finished) {
+                        const newPosition = calculateNewPosition(color, piece.position, gameState.diceValue);
+                        if (newPosition !== null) {
+                            movable.push(i);
+                        }
+                    }
+                }
+            } else {
+                // 非6点时，只能移动在棋盘上的飞机
+                for (let i = 0; i < 4; i++) {
+                    const piece = pieces[i];
+                    if (!piece.inHome && !piece.finished) {
+                        const newPosition = calculateNewPosition(color, piece.position, gameState.diceValue);
+                        if (newPosition !== null) {
+                            movable.push(i);
+                        }
+                    }
+                }
+            }
+            
+            return movable;
+        }
+
+        // 高亮可移动的棋子
+        function highlightMovablePieces(color) {
+            // 清除之前的高亮
+            document.querySelectorAll('.piece').forEach(piece => {
+                piece.classList.remove('movable');
+            });
+            
+            const movablePieces = getMovablePieces(color);
+            movablePieces.forEach(index => {
+                const piece = document.querySelector(`[data-player="${color}"][data-index="${index}"]`);
+                if (piece) {
+                    piece.classList.add('movable');
+                }
+            });
+        }
+
+        // 移动棋子
+        function movePiece(color, index) {
+            if (gameState.gameOver) return;
+            if (gameState.players[gameState.currentPlayer] !== color) return;
+            if (gameState.hasMoved) return; // 已经移动过，不能再移动
+            
+            const piece = gameState.pieces[color][index];
+            if (piece.finished) return;
+            
+            const movablePieces = getMovablePieces(color);
+            if (!movablePieces.includes(index)) return;
+            
+            // 清除高亮
+            document.querySelectorAll('.piece').forEach(p => {
+                p.classList.remove('movable');
+            });
+            
+            // 标记已经移动过
+            gameState.hasMoved = true;
+            
+            if (piece.inHome && gameState.diceValue === 6) {
+                // 从家中起飞
+                takeOff(color, index);
+            } else if (!piece.inHome) {
+                // 在棋盘上移动
+                moveOnBoard(color, index);
+            }
+            
+            // 检查胜利条件
+            if (checkWin(color)) {
+                gameState.gameOver = true;
+                showWinner(color);
+                return;
+            }
+            
+            // 如果投到6点，可以再次投掷；否则切换玩家
+            if (gameState.diceValue === 6) {
+                // 重置移动标记，允许再次投掷
+                gameState.hasMoved = false;
+                document.getElementById('rollBtn').disabled = false;
+                updateStatus(`${getPlayerName(color)} 投到了6点，可以再次投掷骰子`);
+            } else {
+                nextPlayer();
+            }
+        }
+
+        // 棋子起飞
+        function takeOff(color, index) {
+            const startPos = boardConfig.startPositions[color];
+            gameState.pieces[color][index] = { position: startPos, inHome: false, finished: false };
+            
+            // 检查起飞点是否有敌方棋子
+            checkCollision(color, startPos);
+            
+            // 移动棋子到起飞点
+            movePieceToPosition(color, index, startPos);
+            updateStatus(`${getPlayerName(color)} 的棋子${index + 1}起飞了！`);
+            updateScores();
+        }
+
+        // 在棋盘上移动
+        function moveOnBoard(color, index) {
+            const piece = gameState.pieces[color][index];
+            const newPosition = calculateNewPosition(color, piece.position, gameState.diceValue);
+            
+            if (newPosition === null) return;
+            
+            if (newPosition >= 0) {
+                // 正常移动
+                gameState.pieces[color][index].position = newPosition;
+                checkCollision(color, newPosition);
+                movePieceToPosition(color, index, newPosition);
+            } else {
+                // 进入终点区域
+                const endPosition = Math.abs(newPosition) - 1;
+                if (endPosition < 6) {
+                    gameState.pieces[color][index].position = newPosition;
+                    movePieceToEndZone(color, index, endPosition);
+                    
+                    if (endPosition === 5) {
+                        gameState.pieces[color][index].finished = true;
+                        updateStatus(`${getPlayerName(color)} 的棋子${index + 1}到达了终点！`);
+                    }
+                }
+            }
+            updateScores();
+        }
+
+        // 计算新位置
+        function calculateNewPosition(color, currentPos, steps) {
+            const startPos = boardConfig.startPositions[color];
+            
+            // 计算从起飞点开始走过的距离
+            const distanceFromStart = (currentPos - startPos + 52) % 52;
+            const newDistanceFromStart = distanceFromStart + steps;
+            
+            // 如果走过的距离超过50格（一圈），则进入终点直道
+            if (newDistanceFromStart > 50) {
+                // 进入终点区域
+                const endSteps = newDistanceFromStart - 51; // 51格后开始进入终点
+                if (endSteps >= 0 && endSteps < 6) {
+                    return -(endSteps + 1); // 负数表示在终点区域
+                } else if (endSteps >= 6) {
+                    return null; // 超出终点，不能移动
+                }
+            }
+            
+            // 正常在棋盘上移动
+            return (currentPos + steps) % 52;
+        }
+
+        // 检查碰撞
+        function checkCollision(currentColor, position) {
+            if (position < 0) return; // 终点区域不会碰撞
+            if (boardConfig.safePositions.includes(position)) return; // 安全点不会碰撞
+            
+            gameState.players.forEach(color => {
+                if (color === currentColor) return;
+                
+                for (let i = 0; i < 4; i++) {
+                    const piece = gameState.pieces[color][i];
+                    if (!piece.inHome && !piece.finished && piece.position === position) {
+                        // 撞回家
+                        gameState.pieces[color][i] = { position: -1, inHome: true, finished: false };
+                        movePieceToHome(color, i);
+                        updateStatus(`${getPlayerName(color)} 的棋子${i + 1}被撞回了家！`);
+                    }
+                }
+            });
+        }
+
+        // 移动棋子到指定位置
+        function movePieceToPosition(color, index, position) {
+            const piece = document.querySelector(`[data-player="${color}"][data-index="${index}"]`);
+            const cell = document.querySelector(`[data-position="${position}"]`);
+            
+            if (piece && cell) {
+                const rect = cell.getBoundingClientRect();
+                const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
+                piece.style.left = (rect.left - boardRect.left + 5) + 'px';
+                piece.style.top = (rect.top - boardRect.top + 5) + 'px';
+            }
+        }
+
+        // 移动棋子到终点区域
+        function movePieceToEndZone(color, index, endPosition) {
+            const piece = document.querySelector(`[data-player="${color}"][data-index="${index}"]`);
+            const cell = document.querySelector(`[data-end-zone="${color}"][data-end-position="${endPosition}"]`);
+            
+            if (piece && cell) {
+                const rect = cell.getBoundingClientRect();
+                const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
+                piece.style.left = (rect.left - boardRect.left + 5) + 'px';
+                piece.style.top = (rect.top - boardRect.top + 5) + 'px';
+            }
+        }
+
+        // 移动棋子回家
+        function movePieceToHome(color, index) {
+            const piece = document.querySelector(`[data-player="${color}"][data-index="${index}"]`);
+            const homeCell = document.querySelector(`[data-home="${color}"][data-index="${index}"]`);
+            
+            if (piece && homeCell) {
+                const rect = homeCell.getBoundingClientRect();
+                const boardRect = document.getElementById('gameBoard').getBoundingClientRect();
+                // 计算居中位置：home-cell中心 - piece大小的一半
+                const centerX = rect.left - boardRect.left + (rect.width / 2) - 12.5;
+                const centerY = rect.top - boardRect.top + (rect.height / 2) - 12.5;
+                piece.style.left = centerX + 'px';
+                piece.style.top = centerY + 'px';
+            }
+        }
+
+        // 切换到下一个玩家
+        function nextPlayer() {
+            gameState.currentPlayer = (gameState.currentPlayer + 1) % 4;
+            gameState.hasMoved = false; // 重置移动标记
+            const rollBtn = document.getElementById('rollBtn');
+            rollBtn.disabled = false;
+            
+            // 清除所有棋子的高亮状态
+            document.querySelectorAll('.piece').forEach(p => {
+                p.classList.remove('movable');
+            });
+            
+            // 更新玩家状态显示
+            document.querySelectorAll('.player-info').forEach((info, index) => {
+                info.classList.toggle('active', index === gameState.currentPlayer);
+            });
+            
+            const currentPlayerColor = gameState.players[gameState.currentPlayer];
+            updateStatus(`${getPlayerName(currentPlayerColor)} 的回合 - 投掷骰子`);
+        }
+
+        // 检查胜利条件
+        function checkWin(color) {
+            const pieces = gameState.pieces[color];
+            return pieces.every(piece => piece.finished);
+        }
+
+        // 显示获胜者
+        function showWinner(color) {
+            const gameStatus = document.getElementById('gameStatus');
+            gameStatus.innerHTML = `
+                <div class="winner-message">
+                    🎉 恭喜${getPlayerName(color)}获胜！ 🎉
+                </div>
+            `;
+            document.getElementById('rollBtn').disabled = true;
+        }
+
+        // 更新分数显示
+        function updateScores() {
+            gameState.players.forEach(color => {
+                const finishedCount = gameState.pieces[color].filter(piece => piece.finished).length;
+                document.getElementById(`${color}Score`).textContent = `${finishedCount}/4`;
+            });
+        }
+
+        // 更新状态显示
+        function updateStatus(message) {
+            document.getElementById('gameStatus').textContent = message;
+        }
+
+        // 获取玩家名称
+        function getPlayerName(color) {
+            const names = { red: '红色', blue: '蓝色', yellow: '黄色', green: '绿色' };
+            return names[color] || color;
+        }
+
+        // 更新UI
+        function updateUI() {
+            updateScores();
+            const currentPlayerColor = gameState.players[gameState.currentPlayer];
+            updateStatus(`${getPlayerName(currentPlayerColor)} 的回合 - 投掷骰子`);
+        }
+
+        // 重置游戏
+        function resetGame() {
+            gameState.currentPlayer = 0;
+            gameState.diceValue = 0;
+            gameState.gameOver = false;
+            gameState.rollCount = 0;
+            gameState.hasMoved = false;
+            
+            // 重置棋子状态
+            gameState.players.forEach(color => {
+                for (let i = 0; i < 4; i++) {
+                    gameState.pieces[color][i] = { position: -1, inHome: true, finished: false };
+                }
+            });
+            
+            // 移除所有棋子
+            document.querySelectorAll('.piece').forEach(piece => piece.remove());
+            
+            // 重新创建棋子
+            createPieces();
+            
+            // 重置UI
+            document.querySelectorAll('.player-info').forEach((info, index) => {
+                info.classList.toggle('active', index === 0);
+            });
+            
+            document.getElementById('rollBtn').disabled = false;
+            document.getElementById('dice').textContent = '🎲';
+            
+            updateUI();
+        }
+
+        // 绑定事件
+        document.getElementById('rollBtn').onclick = rollDice;
+
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html> 
