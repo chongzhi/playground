@@ -15,6 +15,14 @@
         <main>
             <!-- 持仓概览视图 -->
             <div id="holdings-view" class="view active">
+                <!-- 总市值概览 -->
+                <div id="holdings-overview" class="holdings-overview">
+                    <div class="holdings-card total-value">
+                        <div class="holdings-label">总市值</div>
+                        <div class="holdings-value" id="holdings-total-value">$0</div>
+                    </div>
+                </div>
+
                 <ul id="holdings-list">
                     <!-- 持仓记录将在这里动态生成 -->
                 </ul>
@@ -117,8 +125,8 @@
 
         <footer>
             <nav>
-                <button id="nav-holdings" class="nav-btn active" data-view="holdings-view">持仓</button>
                 <button id="nav-add" class="nav-btn-add" data-view="transaction-view">+</button>
+                <button id="nav-holdings" class="nav-btn active" data-view="holdings-view">持仓</button>
                 <button id="nav-history" class="nav-btn" data-view="history-view">历史</button>
                 <button id="nav-profit" class="nav-btn" data-view="profit-view">盈亏</button>
             </nav>

@@ -440,6 +440,49 @@ main {
     margin-top: 0.5rem;
 }
 
+/* 持仓页面总市值概览样式 */
+.holdings-overview {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.holdings-card {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.holdings-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.holdings-value {
+    font-size: 1.6rem; /* 缩小到0.8倍（从2rem变为1.6rem） */
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.holdings-value .usd-value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.holdings-value .rmb-value {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #666;
+}
+
 /* 空状态 */
 .empty-state {
     text-align: center;
@@ -546,4 +589,5 @@ nav {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     position: relative;
     bottom: 0.5rem;
+    order: -1; /* 确保添加按钮始终在最左侧 */
 }

@@ -82,6 +82,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const transactions = getTransactions();
         const holdings = calculateHoldings(transactions);
 
+        // 计算总市值
+        let totalValue = 0;
+        Object.values(holdings).forEach(stock => {
+            totalValue += stock.quantity * stock.avgCost;
+        });
+
+        // 计算人民币价值（汇率7.2）
+        const rmbValue = totalValue * 7.2;
+
+        // 更新总市值显示
+        document.getElementById('holdings-total-value').innerHTML = `
+            <div class="usd-value">$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+            <div class="rmb-value">¥${rmbValue.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
+        `;
+
         holdingsList.innerHTML = '';
         if (Object.keys(holdings).length === 0) {
             holdingsEmptyState.style.display = 'block';
