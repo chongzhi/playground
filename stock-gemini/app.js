@@ -104,7 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         holdingsEmptyState.style.display = 'none';
-        Object.values(holdings).forEach(stock => {
+        
+        // 按市值从大到小排序
+        const sortedHoldings = Object.values(holdings).sort((a, b) => {
+            const valueA = a.quantity * a.avgCost;
+            const valueB = b.quantity * b.avgCost;
+            return valueB - valueA; // 从大到小排序
+        });
+        
+        sortedHoldings.forEach(stock => {
             const item = document.createElement('li');
             item.className = 'list-item';
             item.innerHTML = `
@@ -200,19 +208,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 计算逻辑 ---
     function calculateHoldings(transactions) {
         const holdings = {};
-        transactions.forEach(tx => {
+        
+        // 按日期排序，确保交易按时间顺序处理
+        const sortedTransactions = transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        sortedTransactions.forEach(tx => {
             if (!holdings[tx.code]) {
                 holdings[tx.code] = { code: tx.code, name: tx.name, quantity: 0, totalCost: 0, avgCost: 0 };
             }
             const stock = holdings[tx.code];
+            
             if (tx.type === 'buy') {
+                // 买入：增加总成本和数量
                 stock.totalCost += tx.price * tx.quantity;
                 stock.quantity += tx.quantity;
             } else { // sell
-                const costOfSoldShares = stock.avgCost * tx.quantity;
-                stock.totalCost -= costOfSoldShares;
-                stock.quantity -= tx.quantity;
+                // 卖出：按当前平均成本计算卖出成本，减少总成本和数量
+                if (stock.quantity >= tx.quantity) {
+                    const costOfSoldShares = (stock.totalCost / stock.quantity) * tx.quantity;
+                    stock.totalCost -= costOfSoldShares;
+                    stock.quantity -= tx.quantity;
+                } else {
+                    // 如果卖出数量超过持仓数量，全部卖出
+                    stock.totalCost = 0;
+                    stock.quantity = 0;
+                }
             }
+            
+            // 计算平均成本
             stock.avgCost = stock.quantity > 0 ? stock.totalCost / stock.quantity : 0;
         });
 
