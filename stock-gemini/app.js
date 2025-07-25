@@ -492,6 +492,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 加载用户输入的价格
     loadUserPrices();
     
+    // 监听系统主题变化
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addListener(() => {
+        // 主题变化时重新渲染当前页面
+        const currentView = document.querySelector('.view.active').id.replace('-view', '');
+        if (currentView === 'holdings') {
+            renderHoldings();
+        } else if (currentView === 'history') {
+            renderHistory();
+        } else if (currentView === 'profit') {
+            renderPriceInputs();
+            renderProfitAnalysis();
+        }
+    });
+    
     // 从localStorage恢复tab状态，如果没有则默认为holdings
     const savedTab = localStorage.getItem(tabStateKey) || 'holdings';
     switchView(savedTab);

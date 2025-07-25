@@ -8,6 +8,19 @@
     --border-color: #e0e0e0;
 }
 
+/* 深色主题变量 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #66BB6A;
+        --primary-dark-color: #4CAF50;
+        --accent-color: #FFD54F;
+        --text-color: #ffffff;
+        --bg-color: #1a1a1a;
+        --card-bg-color: #2d2d2d;
+        --border-color: #444444;
+    }
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
@@ -80,6 +93,12 @@ main {
     color: #666;
 }
 
+@media (prefers-color-scheme: dark) {
+    .item-main-info .stock-code {
+        color: #999;
+    }
+}
+
 .item-details {
     font-size: 0.9rem;
     color: #555;
@@ -89,6 +108,12 @@ main {
     padding-top: 0.75rem;
     margin-top: 0.5rem;
     border-top: 1px solid var(--border-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    .item-details {
+        color: #ccc;
+    }
 }
 
 .item-details span {
@@ -333,6 +358,12 @@ main {
     font-size: 0.8rem;
 }
 
+@media (prefers-color-scheme: dark) {
+    .profit-col .label {
+        color: #999;
+    }
+}
+
 .profit-col .value {
     font-weight: 500;
     color: var(--text-color);
@@ -414,6 +445,12 @@ main {
     font-weight: 500;
 }
 
+@media (prefers-color-scheme: dark) {
+    .currency-symbol {
+        color: #999;
+    }
+}
+
 .price-input {
     width: 100%;
     padding: 0.75rem 0.75rem 0.75rem 1.5rem;
@@ -421,6 +458,13 @@ main {
     border-radius: 6px;
     font-size: 1rem;
     background-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .price-input {
+        background-color: #3d3d3d;
+        color: #fff;
+    }
 }
 
 .price-input:focus {
@@ -433,6 +477,12 @@ main {
     text-align: center;
     color: #777;
     font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+    .no-holdings {
+        color: #999;
+    }
 }
 
 #update-prices-btn {
@@ -483,11 +533,23 @@ main {
     color: #666;
 }
 
+@media (prefers-color-scheme: dark) {
+    .holdings-value .rmb-value {
+        color: #999;
+    }
+}
+
 /* 空状态 */
 .empty-state {
     text-align: center;
     margin-top: 4rem;
     color: #777;
+}
+
+@media (prefers-color-scheme: dark) {
+    .empty-state {
+        color: #999;
+    }
 }
 
 /* 表单样式 */
@@ -508,6 +570,12 @@ main {
     color: #555;
 }
 
+@media (prefers-color-scheme: dark) {
+    .form-group label {
+        color: #ccc;
+    }
+}
+
 .form-group input,
 .form-group select {
     padding: 0.8rem;
@@ -515,6 +583,14 @@ main {
     border-radius: 6px;
     font-size: 1rem;
     background-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    .form-group input,
+    .form-group select {
+        background-color: #3d3d3d;
+        color: #fff;
+    }
 }
 
 .form-actions {
@@ -531,6 +607,13 @@ main {
     font-size: 1rem;
     cursor: pointer;
     background-color: #f0f0f0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .btn {
+        background-color: #3d3d3d;
+        color: #fff;
+    }
 }
 
 .btn-primary {
