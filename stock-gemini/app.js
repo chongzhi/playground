@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const holdingsEmptyState = document.getElementById('holdings-empty-state');
     const historyEmptyState = document.getElementById('history-empty-state');
 
+    // --- 页面状态管理 ---
+    let previousView = 'holdings'; // 记录上一个页面
+
     // --- 数据管理 ---
     const storageKey = 'stockTransactions';
 
@@ -33,6 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 视图切换 ---
     function switchView(viewName) {
+        // 记录上一个页面（排除transaction页面）
+        if (viewName !== 'transaction') {
+            previousView = viewName;
+        }
+        
         Object.values(views).forEach(view => view.classList.remove('active'));
         views[viewName].classList.add('active');
 
@@ -47,7 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderHoldings();
                 break;
             case 'transaction':
-                headerTitle.textContent = '添加交易';
+                const transactionId = document.getElementById('transaction-id').value;
+                headerTitle.textContent = transactionId ? '修改交易' : '添加交易';
                 break;
             case 'history':
                 headerTitle.textContent = '历史记录';
@@ -100,9 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('li');
             item.className = `list-item transaction-type-${tx.type}`;
             item.innerHTML = `
-                <div class="item-main-info">
-                    <div class="stock-name">${tx.name} (${tx.code})</div>
-                    <div class="stock-code">${new Date(tx.date).toLocaleDateString()}</div>
+                <div class="item-header">
+                    <div class="item-main-info">
+                        <div class="stock-name">${tx.name} (${tx.code})</div>
+                        <div class="stock-code">${tx.date}</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="edit-btn" data-id="${tx.id}">修改</button>
+                        <button class="delete-btn" data-id="${tx.id}">删除</button>
+                    </div>
                 </div>
                 <div class="item-details">
                     <div class="item-col-1"><span>类型</span><span>${tx.type === 'buy' ? '买入' : '卖出'}</span></div>
@@ -110,12 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="item-col-3"><span>数量</span><span class="value-quantity">${tx.quantity.toLocaleString('en-US')}</span></div>
                     <div class="item-col-4"><span>总值</span><span class="value-total">$${(tx.price * tx.quantity).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
                 </div>
-                <button class="delete-btn" data-id="${tx.id}">删除</button>
             `;
             
             // 添加删除按钮事件监听
             const deleteBtn = item.querySelector('.delete-btn');
             deleteBtn.addEventListener('click', () => deleteTransaction(tx.id));
+            
+            // 添加修改按钮事件监听
+            const editBtn = item.querySelector('.edit-btn');
+            editBtn.addEventListener('click', () => editTransaction(tx.id));
             
             historyList.appendChild(item);
         });
@@ -129,6 +147,26 @@ document.addEventListener('DOMContentLoaded', () => {
             saveTransactions(updatedTransactions);
             renderHistory();
             renderHoldings(); // 重新计算持仓
+        }
+    }
+
+    // --- 修改功能 ---
+    function editTransaction(transactionId) {
+        const transactions = getTransactions();
+        const transaction = transactions.find(tx => tx.id === transactionId);
+        
+        if (transaction) {
+            // 填充表单
+            document.getElementById('transaction-id').value = transaction.id;
+            document.getElementById('stock-code').value = transaction.code;
+            document.getElementById('stock-name').value = transaction.name;
+            document.getElementById('transaction-type').value = transaction.type;
+            document.getElementById('transaction-price').value = transaction.price;
+            document.getElementById('transaction-quantity').value = transaction.quantity;
+            document.getElementById('transaction-date').value = transaction.date;
+            
+            // 切换到交易表单视图
+            switchView('transaction');
         }
     }
 
@@ -160,18 +198,27 @@ document.addEventListener('DOMContentLoaded', () => {
     navButtons.add.addEventListener('click', () => {
         transactionForm.reset();
         document.getElementById('transaction-id').value = '';
-        // 设置默认交易日期为今天
-        document.getElementById('transaction-date').valueAsDate = new Date();
+        // 设置默认交易日期为今天，格式为 YYYY-MM-DD
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('transaction-date').value = `${year}-${month}-${day}`;
         switchView('transaction');
     });
     navButtons.history.addEventListener('click', () => switchView('history'));
 
-    cancelBtn.addEventListener('click', () => switchView('holdings'));
+    cancelBtn.addEventListener('click', () => {
+        transactionForm.reset();
+        switchView(previousView);
+    });
 
     transactionForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const newTransaction = {
-            id: Date.now().toString(), // Simple unique ID
+        const transactionId = document.getElementById('transaction-id').value;
+        
+        const transactionData = {
+            id: transactionId || Date.now().toString(), // 如果是修改，使用原ID；如果是新增，生成新ID
             code: document.getElementById('stock-code').value.toUpperCase(),
             name: document.getElementById('stock-name').value,
             type: document.getElementById('transaction-type').value,
@@ -181,11 +228,21 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const transactions = getTransactions();
-        transactions.push(newTransaction);
+        
+        if (transactionId) {
+            // 修改现有记录
+            const index = transactions.findIndex(tx => tx.id === transactionId);
+            if (index !== -1) {
+                transactions[index] = transactionData;
+            }
+        } else {
+            // 添加新记录
+            transactions.push(transactionData);
+        }
+        
         saveTransactions(transactions);
-
         transactionForm.reset();
-        switchView('holdings');
+        switchView(previousView);
     });
 
     // --- 初始化 ---
