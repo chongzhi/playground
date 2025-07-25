@@ -524,7 +524,7 @@ main {
 .holdings-value .usd-value {
     font-size: 1.6rem;
     font-weight: 600;
-    color: var(--text-color);
+    color: #E67E22; /* 橙色，与其他页面市值颜色保持一致 */
 }
 
 .holdings-value .rmb-value {
@@ -534,6 +534,10 @@ main {
 }
 
 @media (prefers-color-scheme: dark) {
+    .holdings-value .usd-value {
+        color: #FF8A65; /* 深色主题下的橙色 */
+    }
+    
     .holdings-value .rmb-value {
         color: #999;
     }
