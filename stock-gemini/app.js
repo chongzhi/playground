@@ -106,9 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="item-details">
                     <div class="item-col-1"><span>类型</span><span>${tx.type === 'buy' ? '买入' : '卖出'}</span></div>
-                    <div class="item-col-2"><span>价格</span><span class="value-price">${tx.price.toLocaleString('en-US')}</span></div>
+                    <div class="item-col-2"><span>价格</span><span class="value-price">$${tx.price.toLocaleString('en-US')}</span></div>
                     <div class="item-col-3"><span>数量</span><span class="value-quantity">${tx.quantity.toLocaleString('en-US')}</span></div>
-                    <div class="item-col-4"><span>总值</span><span class="value-total">${(tx.price * tx.quantity).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
+                    <div class="item-col-4"><span>总值</span><span class="value-total">$${(tx.price * tx.quantity).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
                 </div>
                 <button class="delete-btn" data-id="${tx.id}">删除</button>
             `;

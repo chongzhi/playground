@@ -99,10 +99,6 @@ main {
     text-align: left;
 }
 
-.item-col-3, .item-col-4 {
-    text-align: right;
-}
-
 .positive {
     color: #D32F2F;
 }
@@ -146,9 +142,20 @@ main {
     padding-left: 1rem;
 }
 
+/* 交易类型颜色和加粗 */
+.transaction-type-buy .item-details .item-col-1 span:last-child {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.transaction-type-sell .item-details .item-col-1 span:last-child {
+    color: #D32F2F;
+    font-weight: bold;
+}
+
 #history-list .item-details {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr 1fr 1fr 1.2fr;
     gap: 1rem;
 }
 
