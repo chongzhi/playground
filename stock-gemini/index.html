@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>股票记录</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1 id="header-title">我的持仓</h1>
+        </header>
+
+        <main>
+            <!-- 持仓概览视图 -->
+            <div id="holdings-view" class="view active">
+                <ul id="holdings-list">
+                    <!-- 持仓记录将在这里动态生成 -->
+                </ul>
+                <div class="empty-state" id="holdings-empty-state">
+                    <p>暂无持仓记录，请先添加一笔交易。</p>
+                </div>
+            </div>
+
+            <!-- 添加/编辑交易视图 -->
+            <div id="transaction-view" class="view">
+                <form id="transaction-form">
+                    <input type="hidden" id="transaction-id">
+                    <div class="form-group">
+                        <label for="stock-code">股票代码</label>
+                        <input type="text" id="stock-code" placeholder="例如：AAPL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock-name">股票名称</label>
+                        <input type="text" id="stock-name" placeholder="例如：苹果" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-type">交易类型</label>
+                        <select id="transaction-type" required>
+                            <option value="buy">买入</option>
+                            <option value="sell">卖出</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-price">成交价格</label>
+                        <input type="number" id="transaction-price" step="0.01" placeholder="请输入价格" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-quantity">成交数量</label>
+                        <input type="number" id="transaction-quantity" placeholder="请输入数量" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-date">交易日期</label>
+                        <input type="date" id="transaction-date" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <button type="button" id="cancel-btn" class="btn">取消</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 历史明细视图 -->
+            <div id="history-view" class="view">
+                <ul id="history-list">
+                    <!-- 历史记录将在这里动态生成 -->
+                </ul>
+                <div class="empty-state" id="history-empty-state">
+                    <p>暂无历史记录。</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <nav>
+                <button id="nav-holdings" class="nav-btn active" data-view="holdings-view">持仓</button>
+                <button id="nav-add" class="nav-btn-add" data-view="transaction-view">+</button>
+                <button id="nav-history" class="nav-btn" data-view="history-view">历史</button>
+            </nav>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

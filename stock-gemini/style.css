@@ -1,0 +1,238 @@
+:root {
+    --primary-color: #4CAF50;
+    --primary-dark-color: #388E3C;
+    --accent-color: #FFC107;
+    --text-color: #333;
+    --bg-color: #f4f4f9;
+    --card-bg-color: #fff;
+    --border-color: #e0e0e0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overscroll-behavior-y: contain; /* Prevents pull-to-refresh */
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+/* 列表通用样式 */
+.list-item {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 1rem;
+    align-items: center;
+}
+
+.item-main-info .stock-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.item-main-info .stock-code {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.item-details {
+    font-size: 0.9rem;
+    color: #555;
+    grid-column: 1 / -1; /* Span across all columns */
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.item-details span {
+    display: block;
+}
+
+.item-col-1, .item-col-2, .item-col-3 {
+    text-align: left;
+}
+
+.item-col-3 {
+    text-align: right;
+}
+
+.positive {
+    color: #D32F2F;
+}
+
+.negative {
+    color: #388E3C;
+}
+
+/* 持仓列表特定样式 */
+#holdings-list .item-details {
+    grid-template-columns: repeat(3, 1fr);
+    display: grid;
+}
+
+/* 历史记录特定样式 */
+#history-list .transaction-type-buy .item-main-info {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+}
+
+#history-list .transaction-type-sell .item-main-info {
+    border-left: 4px solid #D32F2F;
+    padding-left: 1rem;
+}
+
+#history-list .item-details {
+    grid-template-columns: repeat(3, 1fr);
+    display: grid;
+}
+
+/* 空状态 */
+.empty-state {
+    text-align: center;
+    margin-top: 4rem;
+    color: #777;
+}
+
+/* 表单样式 */
+#transaction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark-color);
+}
+
+/* 底部导航 */
+footer {
+    background-color: var(--card-bg-color);
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.nav-btn, .nav-btn-add {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0.7;
+}
+
+.nav-btn.active {
+    color: var(--primary-color);
+    font-weight: 600;
+    opacity: 1;
+}
+
+.nav-btn-add {
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 2rem;
+    line-height: 1;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    margin-bottom: 1.5rem; /* Raise it */
+    flex-grow: 0;
+    position: relative;
+    bottom: 1rem;
+}

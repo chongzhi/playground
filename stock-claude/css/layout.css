@@ -1,0 +1,316 @@
+/* 布局系统 */
+
+/* 头部样式 */
+.app-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+
+.app-header h1 {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+/* 内容区域 */
+.content {
+    padding: 16px;
+    padding-bottom: 80px; /* 为底部导航留出空间 */
+}
+
+/* 卡片样式 */
+.summary-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin: 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.summary-content h3 {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.total-profit {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.total-profit.positive {
+    color: var(--success-color);
+}
+
+.total-profit.negative {
+    color: var(--danger-color);
+}
+
+.profit-rate {
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.profit-rate.positive {
+    color: var(--success-color);
+}
+
+.profit-rate.negative {
+    color: var(--danger-color);
+}
+
+/* 搜索区域 */
+.search-section {
+    padding: 0 16px;
+    margin-bottom: 16px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 8px 12px;
+    box-shadow: var(--shadow);
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: none;
+}
+
+.search-bar .btn-search {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px;
+}
+
+/* 持仓区域 */
+.portfolio-section {
+    padding: 0 16px;
+    margin-bottom: 16px;
+}
+
+.portfolio-section h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 股票卡片 */
+.stock-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.stock-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+}
+
+.stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.stock-code {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.stock-name {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.stock-profit {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stock-profit.positive {
+    color: var(--success-color);
+}
+
+.stock-profit.negative {
+    color: var(--danger-color);
+}
+
+.stock-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.stock-detail-item {
+    text-align: center;
+}
+
+.stock-detail-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.stock-detail-value {
+    display: block;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* 页面切换 */
+.page {
+    padding: 16px;
+    padding-bottom: 80px;
+}
+
+.page h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+/* 交易列表 */
+.transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.transaction-item {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+
+.transaction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.transaction-type {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.transaction-type.buy {
+    background-color: #e8f5e8;
+    color: var(--success-color);
+}
+
+.transaction-type.sell {
+    background-color: #ffebee;
+    color: var(--danger-color);
+}
+
+.transaction-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.transaction-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.transaction-amount {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+/* 分析页面 */
+.analysis-content {
+    padding: 16px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* 设置页面 */
+.settings-content {
+    padding: 16px;
+}
+
+.setting-item {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.setting-item input {
+    width: 100%;
+    max-width: 200px;
+}
+
+.setting-item button {
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
