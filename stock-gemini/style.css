@@ -549,6 +549,8 @@ footer {
     background-color: var(--card-bg-color);
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
     flex-shrink: 0;
+    position: relative;
+    z-index: 100; /* 确保底部栏在其他内容之上 */
 }
 
 nav {
@@ -589,5 +591,5 @@ nav {
     border-radius: 50%;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     position: relative;
-    order: -1; /* 确保添加按钮始终在最左侧 */
+    order: 1; /* 确保添加按钮始终在最右侧 */
 }
