@@ -212,6 +212,125 @@ main {
     position: relative;
 }
 
+/* 收益分析页面样式 */
+.profit-overview {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.profit-card {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.profit-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.profit-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.profit-value.positive {
+    color: #D32F2F;
+}
+
+.profit-value.negative {
+    color: #388E3C;
+}
+
+#profit-details h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.profit-item {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.profit-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.profit-item-header .stock-info .stock-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.profit-item-header .stock-info .stock-code {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.profit-status {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.profit-status.positive {
+    background-color: #D32F2F;
+    color: white;
+}
+
+.profit-status.negative {
+    background-color: #388E3C;
+    color: white;
+}
+
+.profit-item-details {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.profit-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profit-col .label {
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.profit-col .value {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.profit-col .value.positive {
+    color: #D32F2F;
+}
+
+.profit-col .value.negative {
+    color: #388E3C;
+}
+
 /* 空状态 */
 .empty-state {
     text-align: center;

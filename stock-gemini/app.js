@@ -3,28 +3,33 @@ document.addEventListener('DOMContentLoaded', () => {
         holdings: document.getElementById('holdings-view'),
         transaction: document.getElementById('transaction-view'),
         history: document.getElementById('history-view'),
+        profit: document.getElementById('profit-view'),
     };
 
     const navButtons = {
         holdings: document.getElementById('nav-holdings'),
         add: document.getElementById('nav-add'),
         history: document.getElementById('nav-history'),
+        profit: document.getElementById('nav-profit'),
     };
 
     const headerTitle = document.getElementById('header-title');
     const transactionForm = document.getElementById('transaction-form');
     const holdingsList = document.getElementById('holdings-list');
     const historyList = document.getElementById('history-list');
+    const profitList = document.getElementById('profit-list');
     const cancelBtn = document.getElementById('cancel-btn');
 
     const holdingsEmptyState = document.getElementById('holdings-empty-state');
     const historyEmptyState = document.getElementById('history-empty-state');
+    const profitEmptyState = document.getElementById('profit-empty-state');
 
     // --- 页面状态管理 ---
     let previousView = 'holdings'; // 记录上一个页面
 
     // --- 数据管理 ---
     const storageKey = 'stockTransactions';
+    const tabStateKey = 'currentTab';
 
     function getTransactions() {
         return JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -39,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 记录上一个页面（排除transaction页面）
         if (viewName !== 'transaction') {
             previousView = viewName;
+            // 保存当前tab状态到localStorage
+            localStorage.setItem(tabStateKey, viewName);
         }
         
         Object.values(views).forEach(view => view.classList.remove('active'));
@@ -61,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'history':
                 headerTitle.textContent = '历史记录';
                 renderHistory();
+                break;
+            case 'profit':
+                headerTitle.textContent = '收益分析';
+                renderProfitAnalysis();
                 break;
         }
     }
@@ -193,6 +204,111 @@ document.addEventListener('DOMContentLoaded', () => {
         return Object.fromEntries(Object.entries(holdings).filter(([_, stock]) => stock.quantity > 0));
     }
 
+    // --- 收益分析逻辑 ---
+    function calculateProfitAnalysis(holdings) {
+        let totalCost = 0;
+        let totalValue = 0;
+        const stockProfits = [];
+
+        Object.values(holdings).forEach(stock => {
+            const currentValue = stock.quantity * stock.avgCost; // 使用成本价作为当前价值
+            const profit = currentValue - stock.totalCost;
+            const profitPercent = stock.totalCost > 0 ? (profit / stock.totalCost) * 100 : 0;
+
+            totalCost += stock.totalCost;
+            totalValue += currentValue;
+
+            stockProfits.push({
+                ...stock,
+                currentValue,
+                profit,
+                profitPercent
+            });
+        });
+
+        const totalProfit = totalValue - totalCost;
+        const totalProfitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+
+        return {
+            totalCost,
+            totalValue,
+            totalProfit,
+            totalProfitPercent,
+            stockProfits: stockProfits.sort((a, b) => Math.abs(b.profit) - Math.abs(a.profit)) // 按盈亏绝对值排序
+        };
+    }
+
+    // 渲染收益分析
+    function renderProfitAnalysis() {
+        const transactions = getTransactions();
+        const holdings = calculateHoldings(transactions);
+        const profitData = calculateProfitAnalysis(holdings);
+
+        // 更新总体收益概览
+        document.getElementById('total-value').textContent = `$${profitData.totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+        document.getElementById('total-cost').textContent = `$${profitData.totalCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+        
+        const totalPnlElement = document.getElementById('total-pnl');
+        const totalReturnElement = document.getElementById('total-return');
+        
+        totalPnlElement.textContent = `${profitData.totalProfit >= 0 ? '+' : ''}$${profitData.totalProfit.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+        totalPnlElement.className = `profit-value ${profitData.totalProfit >= 0 ? 'positive' : 'negative'}`;
+        
+        totalReturnElement.textContent = `${profitData.totalProfitPercent >= 0 ? '+' : ''}${profitData.totalProfitPercent.toFixed(2)}%`;
+        totalReturnElement.className = `profit-value ${profitData.totalProfitPercent >= 0 ? 'positive' : 'negative'}`;
+
+        // 渲染个股收益明细
+        profitList.innerHTML = '';
+        if (profitData.stockProfits.length === 0) {
+            profitEmptyState.style.display = 'block';
+            return;
+        }
+
+        profitEmptyState.style.display = 'none';
+        profitData.stockProfits.forEach(stock => {
+            const item = document.createElement('li');
+            item.className = 'profit-item';
+            item.innerHTML = `
+                <div class="profit-item-header">
+                    <div class="stock-info">
+                        <div class="stock-name">${stock.name}</div>
+                        <div class="stock-code">${stock.code}</div>
+                    </div>
+                    <div class="profit-status ${stock.profit >= 0 ? 'positive' : 'negative'}">
+                        ${stock.profit >= 0 ? '盈利' : '亏损'}
+                    </div>
+                </div>
+                <div class="profit-item-details">
+                    <div class="profit-col">
+                        <span class="label">持仓</span>
+                        <span class="value">${stock.quantity.toLocaleString('en-US')}</span>
+                    </div>
+                    <div class="profit-col">
+                        <span class="label">成本</span>
+                        <span class="value">$${stock.avgCost.toFixed(2)}</span>
+                    </div>
+                    <div class="profit-col">
+                        <span class="label">市值</span>
+                        <span class="value">$${stock.currentValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                    <div class="profit-col">
+                        <span class="label">盈亏</span>
+                        <span class="value ${stock.profit >= 0 ? 'positive' : 'negative'}">
+                            ${stock.profit >= 0 ? '+' : ''}$${stock.profit.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                        </span>
+                    </div>
+                    <div class="profit-col">
+                        <span class="label">收益率</span>
+                        <span class="value ${stock.profitPercent >= 0 ? 'positive' : 'negative'}">
+                            ${stock.profitPercent >= 0 ? '+' : ''}${stock.profitPercent.toFixed(2)}%
+                        </span>
+                    </div>
+                </div>
+            `;
+            profitList.appendChild(item);
+        });
+    }
+
     // --- 事件监听 ---
     navButtons.holdings.addEventListener('click', () => switchView('holdings'));
     navButtons.add.addEventListener('click', () => {
@@ -207,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switchView('transaction');
     });
     navButtons.history.addEventListener('click', () => switchView('history'));
+    navButtons.profit.addEventListener('click', () => switchView('profit'));
 
     cancelBtn.addEventListener('click', () => {
         transactionForm.reset();
@@ -246,5 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 初始化 ---
-    switchView('holdings');
+    // 从localStorage恢复tab状态，如果没有则默认为holdings
+    const savedTab = localStorage.getItem(tabStateKey) || 'holdings';
+    switchView(savedTab);
 });
