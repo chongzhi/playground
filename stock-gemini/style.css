@@ -661,7 +661,7 @@ main {
 .holdings-value .rmb-value {
     font-size: 1rem;
     font-weight: 500;
-    color: #666;
+    /* color: #666; */
 }
 
 @media (prefers-color-scheme: dark) {
