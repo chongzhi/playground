@@ -85,12 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 渲染逻辑 ---
     function renderHoldings() {
         const transactions = getTransactions();
+        console.log('Transactions loaded:', transactions.length);
         const holdings = calculateHoldings(transactions);
+        console.log('Holdings calculated:', Object.keys(holdings).length);
 
-        // 计算总市值
+        // 计算总市值（使用用户输入的价格或平均成本）
         let totalValue = 0;
         Object.values(holdings).forEach(stock => {
-            totalValue += stock.quantity * stock.avgCost;
+            const currentPrice = userPrices[stock.code] || stock.avgCost;
+            totalValue += stock.quantity * currentPrice;
         });
 
         // 计算人民币价值（使用设置的汇率）
@@ -120,14 +123,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         holdingsEmptyState.style.display = 'none';
         
-        // 按市值从大到小排序
+        // 按市值从大到小排序（使用当前价格计算市值）
         const sortedHoldings = Object.values(holdings).sort((a, b) => {
-            const valueA = a.quantity * a.avgCost;
-            const valueB = b.quantity * b.avgCost;
+            const currentPriceA = userPrices[a.code] || a.avgCost;
+            const currentPriceB = userPrices[b.code] || b.avgCost;
+            const valueA = a.quantity * currentPriceA;
+            const valueB = b.quantity * currentPriceB;
             return valueB - valueA; // 从大到小排序
         });
         
         sortedHoldings.forEach(stock => {
+            const currentPrice = userPrices[stock.code] || stock.avgCost;
             const item = document.createElement('li');
             item.className = 'list-item';
             item.innerHTML = `
@@ -138,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="item-details">
                     <div class="item-col-1"><span>持仓</span><span class="value-quantity">${stock.quantity.toLocaleString('en-US')}</span></div>
                     <div class="item-col-2"><span>成本</span><span class="value-price">$${stock.avgCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
-                    <div class="item-col-3"><span>总市值</span><span class="value-total">$${(stock.quantity * stock.avgCost).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
+                    <div class="item-col-3"><span>总市值</span><span class="value-total">$${(stock.quantity * currentPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
                 </div>
             `;
             holdingsList.appendChild(item);
@@ -542,7 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
             transactions: getTransactions(),
             userPrices: userPrices,
-            initialFunds: initialFunds
+            initialFunds: initialFunds,
+            exchangeRate: exchangeRate
         };
         
         const dataStr = JSON.stringify(data, null, 2);
@@ -581,6 +588,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (data.initialFunds !== undefined) {
                             initialFunds = data.initialFunds;
                             saveInitialFunds();
+                        }
+                        if (data.exchangeRate !== undefined) {
+                            exchangeRate = data.exchangeRate;
+                            saveExchangeRate();
                         }
                         
                         // 重新渲染所有页面
