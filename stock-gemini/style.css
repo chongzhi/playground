@@ -503,7 +503,13 @@ main {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* 整体盈亏概览样式 - 减少间距 */
+.holdings-pnl-overview {
+    margin-bottom: 1rem;
+    gap: 0.5rem;
 }
 
 .holdings-card {
@@ -538,6 +544,19 @@ main {
 /* 账户余额样式 */
 .account-balance .holdings-value {
     color: #4CAF50; /* 绿色，表示资金 */
+}
+
+/* 整体盈亏颜色样式 */
+.holdings-value.positive {
+    color: #4CAF50;
+}
+
+.holdings-value.negative {
+    color: #f44336;
+}
+
+.holdings-value.neutral {
+    color: #9E9E9E;
 }
 
 .holdings-value .rmb-value {

@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const accountBalance = calculateAccountBalance(transactions);
         const rmbBalance = accountBalance * exchangeRate;
 
+        // 计算整体盈亏（总市值 + 账户余额 - 初始资金）
+        const totalPnl = totalValue + accountBalance - initialFunds;
+        const rmbPnl = totalPnl * exchangeRate;
+        const pnlPercent = initialFunds > 0 ? (totalPnl / initialFunds) * 100 : 0;
+
         // 更新总市值显示
         document.getElementById('holdings-total-value').innerHTML = `
             <div class="usd-value">$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
@@ -113,6 +118,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('account-balance').innerHTML = `
             <div class="usd-value">$${accountBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
             <div class="rmb-value">¥${rmbBalance.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
+        `;
+
+        // 更新整体盈亏显示
+        const pnlColorClass = totalPnl > 0 ? 'positive' : totalPnl < 0 ? 'negative' : 'neutral';
+        document.getElementById('holdings-total-pnl').innerHTML = `
+            <div class="holdings-label">整体盈亏</div>
+            <div class="holdings-value ${pnlColorClass}">
+                <div class="usd-value">$${totalPnl.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+            </div>
+        `;
+
+        // 更新盈亏比例显示
+        document.getElementById('holdings-total-pnl-percent').innerHTML = `
+            <div class="holdings-label">盈亏比例</div>
+            <div class="holdings-value ${pnlColorClass}">
+                <div class="usd-value">${pnlPercent.toFixed(2)}%</div>
+            </div>
         `;
 
         holdingsList.innerHTML = '';
