@@ -250,6 +250,23 @@ main {
     background-color: #f57c00;
 }
 
+/* 买入按钮样式 */
+.buy-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-left: 0.5rem;
+}
+
+.buy-btn:hover {
+    background-color: var(--primary-dark-color);
+}
+
 /* 历史记录列表项布局调整 */
 #history-list .list-item {
     position: relative;

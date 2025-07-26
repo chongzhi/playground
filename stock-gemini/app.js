@@ -93,6 +93,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
     }
 
+    // 切换到买入模式
+    function switchToBuyMode(code, name, price) {
+        switchView('transaction');
+        document.getElementById('stock-code').value = code;
+        document.getElementById('stock-name').value = name;
+        document.getElementById('transaction-type').value = 'buy';
+        document.getElementById('transaction-price').value = price;
+        document.getElementById('transaction-quantity').value = '';
+        document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+    }
+
     // --- 渲染逻辑 ---
     function renderHoldings() {
         const transactions = getTransactions();
@@ -187,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="stock-code">${stock.code}</div>
                     </div>
                     <div class="action-buttons" style="flex-shrink: 0;">
+                        <button class="buy-btn" data-code="${stock.code}" data-name="${stock.name}" data-price="${currentPrice}">买入</button>
                         <button class="sell-btn" data-code="${stock.code}" data-name="${stock.name}" data-price="${currentPrice}" data-quantity="${stock.quantity}">卖出</button>
                     </div>
                 </div>
@@ -204,6 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', (e) => {
                 const { code, name, price, quantity } = e.target.dataset;
                 switchToSellMode(code, name, parseFloat(price), parseInt(quantity));
+            });
+        });
+
+        // 添加买入按钮事件监听
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const { code, name, price } = e.target.dataset;
+                switchToBuyMode(code, name, parseFloat(price));
             });
         });
     }
@@ -688,12 +708,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const transactionData = {
             id: transactionId || Date.now().toString(), // 如果是修改，使用原ID；如果是新增，生成新ID
-            code: document.getElementById('stock-code').value.toUpperCase(),
-            name: document.getElementById('stock-name').value,
-            type: document.getElementById('transaction-type').value,
-            price: parseFloat(document.getElementById('transaction-price').value),
-            quantity: parseInt(document.getElementById('transaction-quantity').value, 10),
-            date: document.getElementById('transaction-date').value,
+            code: document.getElementById('stock-code').value.trim().toUpperCase(),
+            name: document.getElementById('stock-name').value.trim(),
+            type: document.getElementById('transaction-type').value.trim(),
+            price: parseFloat(document.getElementById('transaction-price').value.trim()),
+            quantity: parseInt(document.getElementById('transaction-quantity').value.trim(), 10),
+            date: document.getElementById('transaction-date').value.trim(),
         };
 
         // 校验买入交易时余额是否足够
