@@ -152,13 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 更新持仓股票总市值显示
         document.getElementById('holdings-total-value').innerHTML = `
             <div class="usd-value">$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-            <div class="rmb-value">¥${rmbValue.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
         `;
 
         // 更新账户余额显示
         document.getElementById('account-balance').innerHTML = `
             <div class="usd-value">$${accountBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-            <div class="rmb-value">¥${rmbBalance.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
         `;
 
         holdingsList.innerHTML = '';
