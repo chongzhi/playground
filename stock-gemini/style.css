@@ -607,16 +607,9 @@ main {
     color: var(--text-color);
 }
 
-/* 确保盈亏颜色样式优先级最高 */
-.holdings-main-overview .holdings-card .holdings-value.positive .usd-value,
-.holdings-main-overview .holdings-card .holdings-value.negative .usd-value,
-.holdings-main-overview .holdings-card .holdings-value.neutral .usd-value {
-    color: inherit;
-}
-
 /* 账户概览模块中除了总金额外的其他字段标签 - 与持仓列表样式一致 */
 .holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-label {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #999;
     margin-bottom: 0.5rem;
 }
@@ -632,17 +625,20 @@ main {
     color: #4CAF50; /* 绿色，表示资金 */
 }
 
-/* 整体盈亏颜色样式 - 使用更高优先级 */
-.holdings-card .holdings-value.positive {
-    color: #D32F2F !important;
+/* 整体盈亏颜色样式 - 红涨绿跌，仅影响盈亏字段 */
+#holdings-total-pnl .holdings-value.positive .usd-value,
+#holdings-total-pnl-percent .holdings-value.positive .usd-value {
+    color: #D32F2F;
 }
 
-.holdings-card .holdings-value.negative {
-    color: #388E3C !important;
+#holdings-total-pnl .holdings-value.negative .usd-value,
+#holdings-total-pnl-percent .holdings-value.negative .usd-value {
+    color: #388E3C;
 }
 
-.holdings-card .holdings-value.neutral {
-    color: #9E9E9E !important;
+#holdings-total-pnl .holdings-value.neutral .usd-value,
+#holdings-total-pnl-percent .holdings-value.neutral .usd-value {
+    color: #9E9E9E;
 }
 
 .holdings-value .rmb-value {
