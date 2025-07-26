@@ -676,7 +676,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // 校验买入交易时余额是否足够
         if (transactionData.type === 'buy') {
             const transactions = getTransactions();
-            const currentBalance = calculateAccountBalance(transactions);
+            let tempTransactions = [...transactions];
+            
+            // 如果是修改，先移除原记录再计算
+            if (transactionId) {
+                tempTransactions = tempTransactions.filter(tx => tx.id !== transactionId);
+            }
+            
+            const currentBalance = calculateAccountBalance(tempTransactions);
             const totalCost = transactionData.price * transactionData.quantity;
             
             if (totalCost > currentBalance) {
