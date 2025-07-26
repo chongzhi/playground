@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'profit':
                 headerTitle.textContent = '收益分析';
-                renderPriceInputs();
                 renderProfitAnalysis();
                 break;
             case 'settings':
@@ -94,12 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
             totalValue += stock.quantity * stock.avgCost;
         });
 
-        // 计算人民币价值（汇率7.2）
-        const rmbValue = totalValue * 7.2;
+        // 计算人民币价值（使用设置的汇率）
+        const rmbValue = totalValue * exchangeRate;
 
         // 计算账户余额
         const accountBalance = calculateAccountBalance(transactions);
-        const rmbBalance = accountBalance * 7.2;
+        const rmbBalance = accountBalance * exchangeRate;
 
         // 更新总市值显示
         document.getElementById('holdings-total-value').innerHTML = `
@@ -309,6 +308,21 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(initialFundsKey, initialFunds.toString());
     }
 
+    // --- 汇率管理 ---
+    let exchangeRate = 7.2;
+    const exchangeRateKey = 'exchangeRate';
+
+    // 从localStorage加载汇率
+    function loadExchangeRate() {
+        const saved = localStorage.getItem(exchangeRateKey);
+        exchangeRate = saved ? parseFloat(saved) : 7.2;
+    }
+
+    // 保存汇率到localStorage
+    function saveExchangeRate() {
+        localStorage.setItem(exchangeRateKey, exchangeRate.toString());
+    }
+
     // --- 收益分析逻辑 ---
     function calculateProfitAnalysis(holdings) {
         let totalCost = 0;
@@ -346,11 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 渲染价格输入界面
-    function renderPriceInputs() {
+    // 渲染设置页面中的价格输入界面
+    function renderPriceInputsInSettings() {
         const transactions = getTransactions();
         const holdings = calculateHoldings(transactions);
-        const priceInputsContainer = document.getElementById('price-inputs');
+        const priceInputsContainer = document.getElementById('price-inputs-settings');
         
         priceInputsContainer.innerHTML = '';
         
@@ -384,6 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 渲染设置页面
     function renderSettings() {
         document.getElementById('initial-funds').value = initialFunds;
+        document.getElementById('exchange-rate').value = exchangeRate;
+        renderPriceInputsInSettings();
     }
 
     // 渲染收益分析
@@ -490,12 +506,15 @@ document.addEventListener('DOMContentLoaded', () => {
     navButtons.profit.addEventListener('click', () => switchView('profit'));
     navButtons.settings.addEventListener('click', () => switchView('settings'));
 
-    // 更新价格按钮事件监听
-    document.getElementById('update-prices-btn').addEventListener('click', () => {
+    // 保存所有设置按钮事件监听
+    document.getElementById('save-all-settings-btn').addEventListener('click', () => {
+        const newInitialFunds = parseFloat(document.getElementById('initial-funds').value) || 0;
+        const newExchangeRate = parseFloat(document.getElementById('exchange-rate').value) || 7.2;
+        
+        // 收集用户输入的价格
         const transactions = getTransactions();
         const holdings = calculateHoldings(transactions);
         
-        // 收集用户输入的价格
         Object.values(holdings).forEach(stock => {
             const input = document.getElementById(`price-${stock.code}`);
             if (input && input.value) {
@@ -503,21 +522,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // 保存价格并重新渲染
-        saveUserPrices();
-        renderProfitAnalysis();
-    });
-
-    // 保存设置按钮事件监听
-    document.getElementById('save-settings-btn').addEventListener('click', () => {
-        const newInitialFunds = parseFloat(document.getElementById('initial-funds').value) || 0;
+        // 保存所有设置
         initialFunds = newInitialFunds;
+        exchangeRate = newExchangeRate;
+        
         saveInitialFunds();
+        saveExchangeRate();
+        saveUserPrices();
         
-        // 重新渲染持仓页面以更新账户余额
+        // 重新渲染相关页面
         renderHoldings();
+        renderProfitAnalysis();
         
-        alert('设置已保存！');
+        alert('所有设置已保存！');
     });
 
     // 导出数据按钮事件监听
@@ -629,9 +646,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 初始化 ---
-    // 加载用户输入的价格和初始资金
+    // 加载用户输入的价格、初始资金和汇率
     loadUserPrices();
     loadInitialFunds();
+    loadExchangeRate();
     
     // 监听系统主题变化
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -643,8 +661,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentView === 'history') {
             renderHistory();
         } else if (currentView === 'profit') {
-            renderPriceInputs();
             renderProfitAnalysis();
+        } else if (currentView === 'settings') {
+            renderSettings();
         }
     });
     

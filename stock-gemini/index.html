@@ -105,14 +105,7 @@
                     </div>
                 </div>
 
-                <!-- 价格输入区域 -->
-                <div id="price-input-section" class="price-input-section">
-                    <h3>设置实时股价</h3>
-                    <div id="price-inputs">
-                        <!-- 价格输入框将在这里动态生成 -->
-                    </div>
-                    <button id="update-prices-btn" class="btn btn-primary">更新盈亏计算</button>
-                </div>
+
 
                 <!-- 个股收益明细 -->
                 <div id="profit-details">
@@ -129,17 +122,29 @@
             <!-- 设置视图 -->
             <div id="settings-view" class="view">
                 <div class="settings-section">
-                    <h3>账户设置</h3>
-                    <div class="form-group">
-                        <label for="initial-funds">初始资金</label>
-                        <div class="input-button-group">
+                    <h3>系统设置</h3>
+                    <div class="account-settings-row">
+                        <div class="form-group">
+                            <label for="initial-funds">初始资金</label>
                             <div class="input-wrapper">
                                 <span class="currency-symbol">$</span>
                                 <input type="number" id="initial-funds" step="0.01" min="0" placeholder="请输入初始资金">
                             </div>
-                            <button id="save-settings-btn" class="btn btn-primary">保存设置</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="exchange-rate">美元汇率</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="exchange-rate" step="0.01" min="0" placeholder="请输入美元汇率" value="7.2">
+                            </div>
                         </div>
                     </div>
+                    <div class="price-settings-section">
+                        <h4>实时股价设置</h4>
+                        <div id="price-inputs-settings">
+                            <!-- 价格输入框将在这里动态生成 -->
+                        </div>
+                    </div>
+                    <button id="save-all-settings-btn" class="btn btn-primary save-settings-btn">保存所有设置</button>
                 </div>
 
                 <div class="settings-section">
