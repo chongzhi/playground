@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderHistory();
                 break;
             case 'profit':
-                headerTitle.textContent = '收益分析';
+                headerTitle.textContent = '盈亏分析';
                 renderProfitAnalysis();
                 break;
             case 'settings':
