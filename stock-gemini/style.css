@@ -503,7 +503,7 @@ main {
 .holdings-overview {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 0.8rem;
     margin-bottom: 1rem;
 }
 
@@ -517,9 +517,9 @@ main {
 .holdings-main-overview {
     background-color: var(--card-bg-color);
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 0.75rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .holdings-main-overview .holdings-card {
@@ -540,16 +540,13 @@ main {
     font-weight: 600;
 }
 
-/* 其他字段网格布局 - 一行2个字段 */
+/* 其他字段网格布局 - 占满一行 */
 .holdings-main-overview .holdings-card:not(.holdings-total-amount) {
-    display: inline-block;
-    width: calc(50% - 0.5rem);
-    margin-right: 1rem;
-    margin-bottom: 1rem;
-}
-
-.holdings-main-overview .holdings-card:not(.holdings-total-amount):nth-child(even) {
+    display: block;
+    width: 100%;
     margin-right: 0;
+    margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 /* 其他字段用普通字体，参考持仓列表样式 */
@@ -605,6 +602,7 @@ main {
 
 /* 账户概览模块中除了总金额外的其他字段的usd-value - 与持仓列表样式一致 */
 .holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-value .usd-value {
+    font-size: 1em;
     font-weight: 500;
     color: var(--text-color);
 }
@@ -641,7 +639,7 @@ main {
 }
 
 .holdings-value .rmb-value {
-    font-size: 1.2rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #666;
 }
