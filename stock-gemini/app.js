@@ -82,6 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 切换到卖出模式
+    function switchToSellMode(code, name, price, quantity) {
+        switchView('transaction');
+        document.getElementById('stock-code').value = code;
+        document.getElementById('stock-name').value = name;
+        document.getElementById('transaction-type').value = 'sell';
+        document.getElementById('transaction-price').value = price;
+        document.getElementById('transaction-quantity').value = quantity;
+        document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+    }
+
     // --- 渲染逻辑 ---
     function renderHoldings() {
         const transactions = getTransactions();
@@ -172,9 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('li');
             item.className = 'list-item';
             item.innerHTML = `
-                <div class="item-main-info">
-                    <div class="stock-name">${stock.name}</div>
-                    <div class="stock-code">${stock.code}</div>
+                <div class="item-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                    <div class="item-main-info">
+                        <div class="stock-name">${stock.name}</div>
+                        <div class="stock-code">${stock.code}</div>
+                    </div>
+                    <div class="action-buttons" style="flex-shrink: 0;">
+                        <button class="sell-btn" data-code="${stock.code}" data-name="${stock.name}" data-price="${currentPrice}" data-quantity="${stock.quantity}">卖出</button>
+                    </div>
                 </div>
                 <div class="item-details">
                     <div class="item-col-1"><span>持仓</span><span class="value-quantity">${stock.quantity.toLocaleString('en-US')}</span></div>
@@ -183,6 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             holdingsList.appendChild(item);
+        });
+
+        // 添加卖出按钮事件监听
+        document.querySelectorAll('.sell-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const { code, name, price, quantity } = e.target.dataset;
+                switchToSellMode(code, name, parseFloat(price), parseInt(quantity));
+            });
         });
     }
 
@@ -285,9 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     stock.totalCost -= costOfSoldShares;
                     stock.quantity -= tx.quantity;
                 } else {
-                    // 如果卖出数量超过持仓数量，全部卖出
-                    stock.totalCost = 0;
-                    stock.quantity = 0;
+                    // 超卖情况下，不执行交易，记录警告（应已通过前端校验）
+                    console.warn(`试图卖出 ${tx.quantity} 股 ${tx.code}，但当前只有 ${stock.quantity} 股`);
+                    // 不修改持仓数据，保持原状（防御性编程）
+                    return; // 跳过此交易
                 }
             }
             
@@ -689,6 +714,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (totalCost > currentBalance) {
                 const maxQuantity = Math.floor(currentBalance / transactionData.price);
                 alert(`余额不足！当前余额：$${currentBalance.toLocaleString('en-US')}，需要：$${totalCost.toLocaleString('en-US')}\n在当前价格下，最多可买 ${maxQuantity} 股`);
+                return;
+            }
+        }
+        
+        // 校验卖出交易时持仓数量是否足够
+        if (transactionData.type === 'sell') {
+            const transactions = getTransactions();
+            let tempTransactions = [...transactions];
+            
+            // 如果是修改，先移除原记录再计算
+            if (transactionId) {
+                tempTransactions = tempTransactions.filter(tx => tx.id !== transactionId);
+            }
+            
+            const holdings = calculateHoldings(tempTransactions);
+            const currentHolding = holdings[transactionData.code];
+            const availableQuantity = currentHolding ? currentHolding.quantity : 0;
+            
+            if (transactionData.quantity > availableQuantity) {
+                alert(`持仓数量不足！当前持仓：${availableQuantity} 股，尝试卖出：${transactionData.quantity} 股`);
                 return;
             }
         }
