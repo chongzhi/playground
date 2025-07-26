@@ -673,6 +673,19 @@ document.addEventListener('DOMContentLoaded', () => {
             date: document.getElementById('transaction-date').value,
         };
 
+        // 校验买入交易时余额是否足够
+        if (transactionData.type === 'buy') {
+            const transactions = getTransactions();
+            const currentBalance = calculateAccountBalance(transactions);
+            const totalCost = transactionData.price * transactionData.quantity;
+            
+            if (totalCost > currentBalance) {
+                const maxQuantity = Math.floor(currentBalance / transactionData.price);
+                alert(`余额不足！当前余额：$${currentBalance.toLocaleString('en-US')}，需要：$${totalCost.toLocaleString('en-US')}\n在当前价格下，最多可买 ${maxQuantity} 股`);
+                return;
+            }
+        }
+
         const transactions = getTransactions();
         
         if (transactionId) {
