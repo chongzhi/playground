@@ -119,18 +119,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 更新整体盈亏显示
         const pnlColorClass = totalPnl > 0 ? 'positive' : totalPnl < 0 ? 'negative' : 'neutral';
+        const pnlSign = totalPnl > 0 ? '+' : totalPnl < 0 ? '-' : '';
+        const absPnl = Math.abs(totalPnl);
         document.getElementById('holdings-total-pnl').innerHTML = `
             <div class="holdings-label">整体盈亏</div>
             <div class="holdings-value ${pnlColorClass}">
-                <div class="usd-value">$${totalPnl.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+                <div class="usd-value">${pnlSign}$${absPnl.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
             </div>
         `;
 
         // 更新盈亏比例显示
+        const percentSign = pnlPercent > 0 ? '+' : pnlPercent < 0 ? '-' : '';
+        const absPercent = Math.abs(pnlPercent);
         document.getElementById('holdings-total-pnl-percent').innerHTML = `
             <div class="holdings-label">盈亏比例</div>
             <div class="holdings-value ${pnlColorClass}">
-                <div class="usd-value">${pnlPercent.toFixed(2)}%</div>
+                <div class="usd-value">${percentSign}${absPercent.toFixed(2)}%</div>
             </div>
         `;
 
