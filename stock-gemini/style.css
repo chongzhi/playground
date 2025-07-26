@@ -118,6 +118,7 @@ main {
 
 .item-details span {
     display: block;
+    margin-bottom: 0.25rem;
 }
 
 .item-col-1, .item-col-2, .item-col-3, .item-col-4 {
