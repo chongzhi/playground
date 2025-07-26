@@ -15,20 +15,15 @@
         <main>
             <!-- 持仓概览视图 -->
             <div id="holdings-view" class="view active">
-                <!-- 账户概览 -->
-                <div id="holdings-overview" class="holdings-overview">
-                    <div class="holdings-card total-value">
-                        <div class="holdings-label">总市值</div>
-                        <div class="holdings-value" id="holdings-total-value">$0</div>
+                <!-- 账户概览模块 -->
+                <div class="holdings-overview holdings-main-overview">
+                    <div class="holdings-card holdings-total-amount">
+                        <div class="holdings-label">账户总金额</div>
+                        <div class="holdings-value" id="holdings-total-amount">
+                            <div class="usd-value">$0</div>
+                            <div class="rmb-value">¥0</div>
+                        </div>
                     </div>
-                    <div class="holdings-card account-balance">
-                        <div class="holdings-label">账户余额</div>
-                        <div class="holdings-value" id="account-balance">$0</div>
-                    </div>
-                </div>
-                
-                <!-- 整体盈亏概览 -->
-                <div class="holdings-overview holdings-pnl-overview">
                     <div class="holdings-card" id="holdings-total-pnl">
                         <div class="holdings-label">整体盈亏</div>
                         <div class="holdings-value">
@@ -39,6 +34,20 @@
                         <div class="holdings-label">盈亏比例</div>
                         <div class="holdings-value">
                             <div class="usd-value">0.00%</div>
+                        </div>
+                    </div>
+                    <div class="holdings-card total-value">
+                        <div class="holdings-label">持仓股票总市值</div>
+                        <div class="holdings-value" id="holdings-total-value">
+                            <div class="usd-value">$0</div>
+                            <div class="rmb-value">¥0</div>
+                        </div>
+                    </div>
+                    <div class="holdings-card account-balance">
+                        <div class="holdings-label">账户余额</div>
+                        <div class="holdings-value" id="account-balance">
+                            <div class="usd-value">$0</div>
+                            <div class="rmb-value">¥0</div>
                         </div>
                     </div>
                 </div>

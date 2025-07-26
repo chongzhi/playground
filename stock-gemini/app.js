@@ -103,21 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const accountBalance = calculateAccountBalance(transactions);
         const rmbBalance = accountBalance * exchangeRate;
 
-        // 计算整体盈亏（总市值 + 账户余额 - 初始资金）
-        const totalPnl = totalValue + accountBalance - initialFunds;
-        const rmbPnl = totalPnl * exchangeRate;
+        // 计算账户总金额（股票市值 + 账户余额）
+        const totalAmount = totalValue + accountBalance;
+        const rmbTotalAmount = totalAmount * exchangeRate;
+
+        // 计算整体盈亏（账户总金额 - 初始资金）
+        const totalPnl = totalAmount - initialFunds;
         const pnlPercent = initialFunds > 0 ? (totalPnl / initialFunds) * 100 : 0;
 
-        // 更新总市值显示
-        document.getElementById('holdings-total-value').innerHTML = `
-            <div class="usd-value">$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-            <div class="rmb-value">¥${rmbValue.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
-        `;
-
-        // 更新账户余额显示
-        document.getElementById('account-balance').innerHTML = `
-            <div class="usd-value">$${accountBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-            <div class="rmb-value">¥${rmbBalance.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
+        // 更新账户总金额显示
+        document.getElementById('holdings-total-amount').innerHTML = `
+            <div class="usd-value">$${totalAmount.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+            <div class="rmb-value">¥${rmbTotalAmount.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
         `;
 
         // 更新整体盈亏显示
@@ -135,6 +132,18 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="holdings-value ${pnlColorClass}">
                 <div class="usd-value">${pnlPercent.toFixed(2)}%</div>
             </div>
+        `;
+
+        // 更新持仓股票总市值显示
+        document.getElementById('holdings-total-value').innerHTML = `
+            <div class="usd-value">$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+            <div class="rmb-value">¥${rmbValue.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
+        `;
+
+        // 更新账户余额显示
+        document.getElementById('account-balance').innerHTML = `
+            <div class="usd-value">$${accountBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+            <div class="rmb-value">¥${rmbBalance.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}</div>
         `;
 
         holdingsList.innerHTML = '';

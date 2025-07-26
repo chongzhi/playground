@@ -100,7 +100,7 @@ main {
 }
 
 .item-details {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #999; /* 从#555改为#999（约80%透明度） */
     grid-column: 1 / -1; /* Span across all columns */
     display: flex;
@@ -343,7 +343,7 @@ main {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .profit-col {
@@ -513,6 +513,67 @@ main {
     gap: 0.5rem;
 }
 
+/* 账户整体概览样式 - 突出显示主要信息 */
+.holdings-main-overview {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.holdings-main-overview .holdings-card {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    text-align: center;
+}
+
+/* 账户总金额占一行 */
+.holdings-total-amount {
+    grid-column: 1 / -1;
+    margin-bottom: 1.5rem;
+}
+
+.holdings-total-amount .holdings-value {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+/* 其他字段网格布局 - 一行2个字段 */
+.holdings-main-overview .holdings-card:not(.holdings-total-amount) {
+    display: inline-block;
+    width: calc(50% - 0.5rem);
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+.holdings-main-overview .holdings-card:not(.holdings-total-amount):nth-child(even) {
+    margin-right: 0;
+}
+
+/* 其他字段用普通字体，参考持仓列表样式 */
+.holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-value {
+    font-weight: normal;
+}
+
+.holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-label {
+    font-size: 0.9rem;
+    color: #999;
+    margin-bottom: 0.5rem;
+}
+
+.holdings-total-amount .holdings-value {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+/* 详细分项概览样式 */
+.holdings-detail-overview {
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
 .holdings-card {
     background-color: var(--card-bg-color);
     border-radius: 8px;
@@ -534,6 +595,25 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+}
+
+/* 账户概览模块中除了总金额外的其他字段数值 - 与持仓列表样式一致 */
+.holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-value {
+    font-size: 1em;
+    font-weight: 500;
+}
+
+/* 账户概览模块中除了总金额外的其他字段的usd-value - 与持仓列表样式一致 */
+.holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-value .usd-value {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* 账户概览模块中除了总金额外的其他字段标签 - 与持仓列表样式一致 */
+.holdings-main-overview .holdings-card:not(.holdings-total-amount) .holdings-label {
+    font-size: 0.9rem;
+    color: #999;
+    margin-bottom: 0.5rem;
 }
 
 .holdings-value .usd-value {
