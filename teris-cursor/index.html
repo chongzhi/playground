@@ -21,16 +21,25 @@
                     <button id="restartBtn">重新开始</button>
                 </div>
                 
-                <!-- 移动端控制按钮 -->
-                <div class="mobile-controls">
-                    <div class="control-row">
-                        <button id="mobileRotateBtn" class="mobile-btn rotate-btn">↻</button>
-                        <button id="mobilePauseBtn" class="mobile-btn pause-btn">⏸</button>
+                <!-- 游戏下方控制区域 -->
+                <div class="bottom-controls">
+                    <!-- 移动端控制按钮 -->
+                    <div class="mobile-controls">
+                        <div class="control-row">
+                            <button id="mobileRotateBtn" class="mobile-btn rotate-btn">↻</button>
+                            <button id="mobilePauseBtn" class="mobile-btn pause-btn">⏸</button>
+                        </div>
+                        <div class="control-row">
+                            <button id="mobileLeftBtn" class="mobile-btn move-btn">←</button>
+                            <button id="mobileDownBtn" class="mobile-btn down-btn">↓</button>
+                            <button id="mobileRightBtn" class="mobile-btn move-btn">→</button>
+                        </div>
                     </div>
-                    <div class="control-row">
-                        <button id="mobileLeftBtn" class="mobile-btn move-btn">←</button>
-                        <button id="mobileDownBtn" class="mobile-btn down-btn">↓</button>
-                        <button id="mobileRightBtn" class="mobile-btn move-btn">→</button>
+                    
+                    <!-- 下一个方块预览 -->
+                    <div class="next-piece">
+                        <h3>下一个</h3>
+                        <canvas id="nextCanvas" width="120" height="120"></canvas>
                     </div>
                 </div>
             </div>
@@ -51,11 +60,6 @@
                     <div id="lines">0</div>
                 </div>
                 
-                <div class="next-piece">
-                    <h3>下一个</h3>
-                    <canvas id="nextCanvas" width="120" height="120"></canvas>
-                </div>
-                
                 <div class="controls">
                     <h3>控制说明</h3>
                     <div class="control-info">
@@ -65,14 +69,15 @@
                         <p>空格 : 暂停/继续</p>
                     </div>
                 </div>
-                
-                <div class="game-controls">
-                    <button id="pauseBtn">暂停</button>
-                    <button id="newGameBtn">新游戏</button>
-                    <button id="toggleMobileBtn">显示/隐藏触摸控制</button>
-                    <button id="backBtn" onclick="location.href='../index.html'">返回大厅</button>
-                </div>
             </div>
+        </div>
+        
+        <!-- 底部游戏控制按钮 -->
+        <div class="game-controls">
+            <button id="pauseBtn">暂停</button>
+            <button id="newGameBtn">新游戏</button>
+            <button id="toggleMobileBtn">显示/隐藏触摸控制</button>
+            <button id="backBtn" onclick="location.href='../index.html'">返回大厅</button>
         </div>
     </div>
     

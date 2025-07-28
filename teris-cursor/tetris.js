@@ -96,11 +96,15 @@ class Tetris {
         const shouldShowControls = isMobile || hasTouch || isSmallScreen;
         
         const mobileControls = document.querySelector('.mobile-controls');
+        const bottomControls = document.querySelector('.bottom-controls');
+        
         if (mobileControls) {
             if (shouldShowControls) {
                 mobileControls.classList.add('show');
+                if (bottomControls) bottomControls.classList.add('has-mobile-controls');
                 console.log('Mobile/touch device or small screen detected, showing touch controls');
             } else {
+                if (bottomControls) bottomControls.classList.remove('has-mobile-controls');
                 console.log('Desktop device detected, hiding touch controls (use toggle button to show)');
             }
         }
@@ -108,9 +112,21 @@ class Tetris {
     
     toggleMobileControls() {
         const mobileControls = document.querySelector('.mobile-controls');
+        const bottomControls = document.querySelector('.bottom-controls');
+        
         if (mobileControls) {
             mobileControls.classList.toggle('show');
             const isVisible = mobileControls.classList.contains('show');
+            
+            // 同步调整底部控制区域的布局
+            if (bottomControls) {
+                if (isVisible) {
+                    bottomControls.classList.add('has-mobile-controls');
+                } else {
+                    bottomControls.classList.remove('has-mobile-controls');
+                }
+            }
+            
             console.log(`Mobile controls ${isVisible ? 'shown' : 'hidden'}`);
         }
     }
