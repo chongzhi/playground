@@ -162,10 +162,11 @@ class Tetris {
         const mobileRightBtn = document.getElementById('mobileRightBtn');
         const mobileDownBtn = document.getElementById('mobileDownBtn');
         const mobileRotateBtn = document.getElementById('mobileRotateBtn');
+        const mobileDropBtn = document.getElementById('mobileDropBtn');
         const mobilePauseBtn = document.getElementById('mobilePauseBtn');
         
         // 检查元素是否存在
-        if (!mobileLeftBtn || !mobileRightBtn || !mobileDownBtn || !mobileRotateBtn || !mobilePauseBtn) {
+        if (!mobileLeftBtn || !mobileRightBtn || !mobileDownBtn || !mobileRotateBtn || !mobileDropBtn || !mobilePauseBtn) {
             console.warn('Mobile control buttons not found');
             return;
         }
@@ -265,6 +266,25 @@ class Tetris {
             this.rotatePiece();
         });
         
+        // 硬降按钮
+        mobileDropBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile drop button touched');
+            this.addButtonFeedback(mobileDropBtn);
+            if (!this.gameRunning || this.gamePaused) return;
+            this.hardDrop();
+        });
+        
+        mobileDropBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile drop button clicked');
+            this.addButtonFeedback(mobileDropBtn);
+            if (!this.gameRunning || this.gamePaused) return;
+            this.hardDrop();
+        });
+        
         // 移动端暂停按钮
         mobilePauseBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
@@ -283,7 +303,7 @@ class Tetris {
         });
         
         // 添加touchend事件防止意外行为
-        [mobileLeftBtn, mobileRightBtn, mobileRotateBtn].forEach(btn => {
+        [mobileLeftBtn, mobileRightBtn, mobileRotateBtn, mobileDropBtn].forEach(btn => {
             btn.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -316,6 +336,10 @@ class Tetris {
                 break;
             case 38: // Up (Rotate)
                 this.rotatePiece();
+                break;
+            case 13: // Enter (Hard Drop)
+                e.preventDefault();
+                this.hardDrop();
                 break;
             case 32: // Space (Pause)
                 e.preventDefault();
@@ -352,6 +376,26 @@ class Tetris {
             return true;
         }
         return false;
+    }
+    
+    hardDrop() {
+        if (!this.currentPiece || !this.gameRunning || this.gamePaused) return;
+        
+        // 找到方块能下降的最低位置
+        let dropDistance = 0;
+        while (this.isValidPosition(this.currentPiece.shape, this.currentPiece.x, this.currentPiece.y + dropDistance + 1)) {
+            dropDistance++;
+        }
+        
+        // 直接移动到最低位置
+        this.currentPiece.y += dropDistance;
+        
+        // 立即放置方块
+        this.placePiece();
+        
+        // 获得硬降分数奖励
+        this.score += dropDistance * 2;
+        this.updateDisplay();
     }
     
     rotatePiece() {

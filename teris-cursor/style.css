@@ -359,6 +359,14 @@ button {
     background: linear-gradient(135deg, #805ad5, #6b46c1);
 }
 
+.drop-btn {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+}
+
+.drop-btn:active {
+    background: linear-gradient(135deg, #c53030, #9c2626);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .game-container {
@@ -468,13 +476,13 @@ button {
     }
     
     .mobile-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
+        width: 48px;
+        height: 48px;
+        font-size: 19px;
     }
     
     .control-row {
-        gap: 10px;
+        gap: 8px;
     }
     
     .score-board, .level-board, .lines-board {
