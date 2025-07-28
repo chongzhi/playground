@@ -101,6 +101,106 @@ class Tetris {
         document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
         document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
         document.getElementById('restartBtn').addEventListener('click', () => this.newGame());
+        
+        // 移动端按钮事件
+        this.bindMobileEvents();
+    }
+    
+    bindMobileEvents() {
+        // 长按和重复动作的状态
+        this.isDownPressed = false;
+        this.downInterval = null;
+        
+        // 左移按钮
+        document.getElementById('mobileLeftBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(-1, 0);
+        });
+        
+        // 右移按钮
+        document.getElementById('mobileRightBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(1, 0);
+        });
+        
+        // 下降按钮（支持长按）
+        document.getElementById('mobileDownBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            
+            this.isDownPressed = true;
+            this.movePiece(0, 1);
+            
+            // 开始长按重复下降
+            this.downInterval = setInterval(() => {
+                if (this.isDownPressed && this.gameRunning && !this.gamePaused) {
+                    this.movePiece(0, 1);
+                }
+            }, 100);
+        });
+        
+        document.getElementById('mobileDownBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.isDownPressed = false;
+            if (this.downInterval) {
+                clearInterval(this.downInterval);
+                this.downInterval = null;
+            }
+        });
+        
+        // 旋转按钮
+        document.getElementById('mobileRotateBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.rotatePiece();
+        });
+        
+        // 移动端暂停按钮
+        document.getElementById('mobilePauseBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.togglePause();
+        });
+        
+        // 为了防止长按重复触发，添加touchend事件
+        const mobileButtons = ['mobileLeftBtn', 'mobileRightBtn', 'mobileRotateBtn'];
+        mobileButtons.forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+            });
+        });
+        
+        // 也支持click事件作为备用
+        document.getElementById('mobileLeftBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(-1, 0);
+        });
+        
+        document.getElementById('mobileRightBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(1, 0);
+        });
+        
+        document.getElementById('mobileDownBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(0, 1);
+        });
+        
+        document.getElementById('mobileRotateBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!this.gameRunning || this.gamePaused) return;
+            this.rotatePiece();
+        });
+        
+        document.getElementById('mobilePauseBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.togglePause();
+        });
     }
     
     handleKeyPress(e) {
@@ -403,6 +503,7 @@ class Tetris {
         this.gameRunning = true;
         this.gamePaused = false;
         document.getElementById('pauseBtn').textContent = '暂停';
+        document.getElementById('mobilePauseBtn').textContent = '⏸';
         this.gameLoop();
     }
     
@@ -428,7 +529,12 @@ class Tetris {
         if (!this.gameRunning) return;
         
         this.gamePaused = !this.gamePaused;
+        
+        // 更新桌面端暂停按钮
         document.getElementById('pauseBtn').textContent = this.gamePaused ? '继续' : '暂停';
+        
+        // 更新移动端暂停按钮
+        document.getElementById('mobilePauseBtn').textContent = this.gamePaused ? '▶' : '⏸';
         
         if (!this.gamePaused) {
             this.gameLoop();
@@ -437,6 +543,14 @@ class Tetris {
     
     gameOver() {
         this.gameRunning = false;
+        
+        // 清除移动端长按状态
+        this.isDownPressed = false;
+        if (this.downInterval) {
+            clearInterval(this.downInterval);
+            this.downInterval = null;
+        }
+        
         document.getElementById('finalScore').textContent = this.score;
         document.getElementById('gameOver').classList.remove('hidden');
     }

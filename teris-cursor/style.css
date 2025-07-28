@@ -193,6 +193,81 @@ button {
     box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
 }
 
+/* 移动端控制按钮 */
+.mobile-controls {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.mobile-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-btn:active {
+    transform: scale(0.95);
+}
+
+.move-btn {
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+}
+
+.move-btn:active {
+    background: linear-gradient(135deg, #3182ce, #2c5282);
+}
+
+.down-btn {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.down-btn:active {
+    background: linear-gradient(135deg, #38a169, #2f855a);
+}
+
+.rotate-btn {
+    background: linear-gradient(135deg, #ed8936, #dd6b20);
+}
+
+.rotate-btn:active {
+    background: linear-gradient(135deg, #dd6b20, #c05621);
+}
+
+.pause-btn {
+    background: linear-gradient(135deg, #9f7aea, #805ad5);
+}
+
+.pause-btn:active {
+    background: linear-gradient(135deg, #805ad5, #6b46c1);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .game-container {
@@ -215,6 +290,8 @@ button {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
+        order: -1; /* 移动端将侧边栏显示在游戏区域上方 */
+        margin-bottom: 20px;
     }
     
     .score-board, .level-board, .lines-board {
@@ -222,14 +299,73 @@ button {
         min-width: 80px;
     }
     
-    .next-piece, .controls, .game-controls {
+    .next-piece {
         width: 100%;
+        order: 1;
+    }
+    
+    .controls {
+        display: none; /* 隐藏键盘控制说明 */
+    }
+    
+    .game-controls {
+        width: 100%;
+        order: 2;
     }
     
     #gameCanvas {
         width: 100%;
         max-width: 300px;
         height: auto;
+    }
+    
+    /* 显示移动端控制按钮 */
+    .mobile-controls {
+        display: block;
+    }
+    
+    /* 优化移动端按钮布局 */
+    .mobile-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+    
+    .control-row {
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+}
+
+/* 针对更小屏幕的优化 */
+@media (max-width: 480px) {
+    .game-container {
+        padding: 10px;
+        margin: 5px;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+    
+    #gameCanvas {
+        max-width: 280px;
+    }
+    
+    .mobile-btn {
+        width: 65px;
+        height: 65px;
+        font-size: 26px;
+    }
+    
+    .control-row {
+        gap: 15px;
+    }
+    
+    .score-board, .level-board, .lines-board {
+        padding: 10px;
+        min-width: 70px;
     }
 }
 
