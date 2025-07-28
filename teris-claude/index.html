@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俄罗斯方块</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>俄罗斯方块</h1>
+            <div class="score-board">
+                <div class="score-item">
+                    <span>得分:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <span>等级:</span>
+                    <span id="level">1</span>
+                </div>
+                <div class="score-item">
+                    <span>行数:</span>
+                    <span id="lines">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-content">
+            <div class="game-area">
+                <canvas id="gameBoard" width="300" height="600"></canvas>
+                <div class="game-overlay" id="gameOverlay">
+                    <div class="overlay-content">
+                        <h2 id="overlayTitle">游戏暂停</h2>
+                        <p id="overlayMessage">按空格键继续游戏</p>
+                        <button id="restartBtn" onclick="restartGame()">重新开始</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="side-panel">
+                <div class="next-piece">
+                    <h3>下一个</h3>
+                    <canvas id="nextCanvas" width="120" height="120"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <h3>操作说明</h3>
+                    <div class="control-item">
+                        <span>← →</span>
+                        <span>左右移动</span>
+                    </div>
+                    <div class="control-item">
+                        <span>↓</span>
+                        <span>快速下降</span>
+                    </div>
+                    <div class="control-item">
+                        <span>↑</span>
+                        <span>旋转</span>
+                    </div>
+                    <div class="control-item">
+                        <span>空格</span>
+                        <span>暂停/继续</span>
+                    </div>
+                </div>
+                
+                <button class="action-btn" onclick="togglePause()">暂停/继续</button>
+                <button class="action-btn" onclick="restartGame()">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="tetris.js"></script>
+</body>
+</html>
