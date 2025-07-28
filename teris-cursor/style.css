@@ -12,6 +12,16 @@ body {
     justify-content: center;
     align-items: center;
     color: #333;
+    
+    /* 移动端优化：防止操作冲突 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    overflow-x: hidden;
 }
 
 .game-container {
@@ -21,6 +31,10 @@ body {
     padding: 20px;
     max-width: 800px;
     width: 100%;
+    
+    /* 移动端触摸优化 */
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
 }
 
 .header {
@@ -51,6 +65,15 @@ body {
     border-radius: 10px;
     background: #1a202c;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    
+    /* 防止画布被意外操作 */
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: auto;
+    touch-action: none;
 }
 
 .game-over {
