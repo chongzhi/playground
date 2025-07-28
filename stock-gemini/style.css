@@ -295,7 +295,7 @@ main {
 }
 
 .profit-label {
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: #999; /* 从#666改为#999（约80%透明度） */
     margin-bottom: 0.5rem;
 }
@@ -376,7 +376,7 @@ main {
 .profit-item-details {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: 0.8rem;
     font-size: 1rem;
 }
 
@@ -390,7 +390,7 @@ main {
 .profit-col .label {
     color: #999; /* 从#666改为#999（约80%透明度） */
     margin-bottom: 0.25rem;
-    font-size: 0.8rem;
+    font-size: 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
