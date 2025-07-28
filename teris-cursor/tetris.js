@@ -592,8 +592,8 @@ class Tetris {
         this.nextCtx.fillRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
         
         if (this.nextPiece) {
-            // 为下一个方块预览使用适当的块大小
-            const previewBlockSize = this.nextCanvas.width <= 100 ? 18 : this.nextCanvas.width <= 120 ? 22 : 25;
+            // 为下一个方块预览使用适当的块大小（因为容器缩小了0.8倍，所以方块也相应缩小）
+            const previewBlockSize = this.nextCanvas.width <= 100 ? 14 : this.nextCanvas.width <= 120 ? 16 : 18;
             const offsetX = (this.nextCanvas.width - this.nextPiece.shape[0].length * previewBlockSize) / 2;
             const offsetY = (this.nextCanvas.height - this.nextPiece.shape.length * previewBlockSize) / 2;
             
