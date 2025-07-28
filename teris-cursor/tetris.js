@@ -79,11 +79,40 @@ class Tetris {
     
     init() {
         this.initBoard();
+        this.detectMobile();
         this.bindEvents();
         this.generatePiece();
         this.generatePiece();
         this.updateDisplay();
         this.startGame();
+    }
+    
+    detectMobile() {
+        // 检测是否为移动设备或小屏幕
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isSmallScreen = window.innerWidth <= 768 || window.innerHeight <= 600;
+        
+        const shouldShowControls = isMobile || hasTouch || isSmallScreen;
+        
+        const mobileControls = document.querySelector('.mobile-controls');
+        if (mobileControls) {
+            if (shouldShowControls) {
+                mobileControls.classList.add('show');
+                console.log('Mobile/touch device or small screen detected, showing touch controls');
+            } else {
+                console.log('Desktop device detected, hiding touch controls (use toggle button to show)');
+            }
+        }
+    }
+    
+    toggleMobileControls() {
+        const mobileControls = document.querySelector('.mobile-controls');
+        if (mobileControls) {
+            mobileControls.classList.toggle('show');
+            const isVisible = mobileControls.classList.contains('show');
+            console.log(`Mobile controls ${isVisible ? 'shown' : 'hidden'}`);
+        }
     }
     
     initBoard() {
@@ -101,6 +130,7 @@ class Tetris {
         document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
         document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
         document.getElementById('restartBtn').addEventListener('click', () => this.newGame());
+        document.getElementById('toggleMobileBtn').addEventListener('click', () => this.toggleMobileControls());
         
         // 移动端按钮事件
         this.bindMobileEvents();
@@ -111,23 +141,63 @@ class Tetris {
         this.isDownPressed = false;
         this.downInterval = null;
         
+        // 获取移动端按钮元素
+        const mobileLeftBtn = document.getElementById('mobileLeftBtn');
+        const mobileRightBtn = document.getElementById('mobileRightBtn');
+        const mobileDownBtn = document.getElementById('mobileDownBtn');
+        const mobileRotateBtn = document.getElementById('mobileRotateBtn');
+        const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+        
+        // 检查元素是否存在
+        if (!mobileLeftBtn || !mobileRightBtn || !mobileDownBtn || !mobileRotateBtn || !mobilePauseBtn) {
+            console.warn('Mobile control buttons not found');
+            return;
+        }
+        
         // 左移按钮
-        document.getElementById('mobileLeftBtn').addEventListener('touchstart', (e) => {
+        mobileLeftBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile left button touched');
+            this.addButtonFeedback(mobileLeftBtn);
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(-1, 0);
+        });
+        
+        mobileLeftBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile left button clicked');
+            this.addButtonFeedback(mobileLeftBtn);
             if (!this.gameRunning || this.gamePaused) return;
             this.movePiece(-1, 0);
         });
         
         // 右移按钮
-        document.getElementById('mobileRightBtn').addEventListener('touchstart', (e) => {
+        mobileRightBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile right button touched');
+            this.addButtonFeedback(mobileRightBtn);
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(1, 0);
+        });
+        
+        mobileRightBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile right button clicked');
+            this.addButtonFeedback(mobileRightBtn);
             if (!this.gameRunning || this.gamePaused) return;
             this.movePiece(1, 0);
         });
         
         // 下降按钮（支持长按）
-        document.getElementById('mobileDownBtn').addEventListener('touchstart', (e) => {
+        mobileDownBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile down button touched');
+            this.addButtonFeedback(mobileDownBtn);
             if (!this.gameRunning || this.gamePaused) return;
             
             this.isDownPressed = true;
@@ -141,8 +211,9 @@ class Tetris {
             }, 100);
         });
         
-        document.getElementById('mobileDownBtn').addEventListener('touchend', (e) => {
+        mobileDownBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             this.isDownPressed = false;
             if (this.downInterval) {
                 clearInterval(this.downInterval);
@@ -150,57 +221,68 @@ class Tetris {
             }
         });
         
-        // 旋转按钮
-        document.getElementById('mobileRotateBtn').addEventListener('touchstart', (e) => {
+        mobileDownBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile down button clicked');
+            this.addButtonFeedback(mobileDownBtn);
+            if (!this.gameRunning || this.gamePaused) return;
+            this.movePiece(0, 1);
+        });
+        
+        // 旋转按钮
+        mobileRotateBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile rotate button touched');
+            this.addButtonFeedback(mobileRotateBtn);
+            if (!this.gameRunning || this.gamePaused) return;
+            this.rotatePiece();
+        });
+        
+        mobileRotateBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile rotate button clicked');
+            this.addButtonFeedback(mobileRotateBtn);
             if (!this.gameRunning || this.gamePaused) return;
             this.rotatePiece();
         });
         
         // 移动端暂停按钮
-        document.getElementById('mobilePauseBtn').addEventListener('touchstart', (e) => {
+        mobilePauseBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile pause button touched');
+            this.addButtonFeedback(mobilePauseBtn);
             this.togglePause();
         });
         
-        // 为了防止长按重复触发，添加touchend事件
-        const mobileButtons = ['mobileLeftBtn', 'mobileRightBtn', 'mobileRotateBtn'];
-        mobileButtons.forEach(btnId => {
-            const btn = document.getElementById(btnId);
+        mobilePauseBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile pause button clicked');
+            this.addButtonFeedback(mobilePauseBtn);
+            this.togglePause();
+        });
+        
+        // 添加touchend事件防止意外行为
+        [mobileLeftBtn, mobileRightBtn, mobileRotateBtn].forEach(btn => {
             btn.addEventListener('touchend', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
             });
         });
         
-        // 也支持click事件作为备用
-        document.getElementById('mobileLeftBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (!this.gameRunning || this.gamePaused) return;
-            this.movePiece(-1, 0);
-        });
-        
-        document.getElementById('mobileRightBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (!this.gameRunning || this.gamePaused) return;
-            this.movePiece(1, 0);
-        });
-        
-        document.getElementById('mobileDownBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (!this.gameRunning || this.gamePaused) return;
-            this.movePiece(0, 1);
-        });
-        
-        document.getElementById('mobileRotateBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (!this.gameRunning || this.gamePaused) return;
-            this.rotatePiece();
-        });
-        
-        document.getElementById('mobilePauseBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.togglePause();
-        });
+        console.log('Mobile events bound successfully');
+    }
+    
+    addButtonFeedback(button) {
+        // 添加视觉反馈
+        button.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 150);
     }
     
     handleKeyPress(e) {
@@ -503,7 +585,12 @@ class Tetris {
         this.gameRunning = true;
         this.gamePaused = false;
         document.getElementById('pauseBtn').textContent = '暂停';
-        document.getElementById('mobilePauseBtn').textContent = '⏸';
+        
+        const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+        if (mobilePauseBtn) {
+            mobilePauseBtn.textContent = '⏸';
+        }
+        
         this.gameLoop();
     }
     
@@ -534,7 +621,10 @@ class Tetris {
         document.getElementById('pauseBtn').textContent = this.gamePaused ? '继续' : '暂停';
         
         // 更新移动端暂停按钮
-        document.getElementById('mobilePauseBtn').textContent = this.gamePaused ? '▶' : '⏸';
+        const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+        if (mobilePauseBtn) {
+            mobilePauseBtn.textContent = this.gamePaused ? '▶' : '⏸';
+        }
         
         if (!this.gamePaused) {
             this.gameLoop();

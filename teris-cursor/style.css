@@ -193,6 +193,17 @@ button {
     box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
 }
 
+#toggleMobileBtn {
+    background: #805ad5;
+    color: white;
+}
+
+#toggleMobileBtn:hover {
+    background: #6b46c1;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(128, 90, 213, 0.4);
+}
+
 /* 移动端控制按钮 */
 .mobile-controls {
     display: none;
@@ -201,6 +212,11 @@ button {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 用JavaScript检测移动设备时显示 */
+.mobile-controls.show {
+    display: block;
 }
 
 .control-row {
@@ -321,7 +337,7 @@ button {
     
     /* 显示移动端控制按钮 */
     .mobile-controls {
-        display: block;
+        display: block !important;
     }
     
     /* 优化移动端按钮布局 */
@@ -366,6 +382,11 @@ button {
     .score-board, .level-board, .lines-board {
         padding: 10px;
         min-width: 70px;
+    }
+    
+    /* 确保在小屏幕上也显示移动端控制按钮 */
+    .mobile-controls {
+        display: block !important;
     }
 }
 
