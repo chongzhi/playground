@@ -548,21 +548,23 @@ class Tetris {
         this.nextCtx.fillRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
         
         if (this.nextPiece) {
-            const offsetX = (this.nextCanvas.width - this.nextPiece.shape[0].length * this.BLOCK_SIZE) / 2;
-            const offsetY = (this.nextCanvas.height - this.nextPiece.shape.length * this.BLOCK_SIZE) / 2;
+            // 为下一个方块预览使用适当的块大小
+            const previewBlockSize = this.nextCanvas.width <= 100 ? 18 : this.nextCanvas.width <= 120 ? 22 : 25;
+            const offsetX = (this.nextCanvas.width - this.nextPiece.shape[0].length * previewBlockSize) / 2;
+            const offsetY = (this.nextCanvas.height - this.nextPiece.shape.length * previewBlockSize) / 2;
             
             for (let py = 0; py < this.nextPiece.shape.length; py++) {
                 for (let px = 0; px < this.nextPiece.shape[py].length; px++) {
                     if (this.nextPiece.shape[py][px]) {
-                        const pixelX = offsetX + px * this.BLOCK_SIZE;
-                        const pixelY = offsetY + py * this.BLOCK_SIZE;
+                        const pixelX = offsetX + px * previewBlockSize;
+                        const pixelY = offsetY + py * previewBlockSize;
                         
                         this.nextCtx.fillStyle = this.nextPiece.color;
-                        this.nextCtx.fillRect(pixelX, pixelY, this.BLOCK_SIZE, this.BLOCK_SIZE);
+                        this.nextCtx.fillRect(pixelX, pixelY, previewBlockSize, previewBlockSize);
                         
                         this.nextCtx.strokeStyle = '#000';
                         this.nextCtx.lineWidth = 1;
-                        this.nextCtx.strokeRect(pixelX, pixelY, this.BLOCK_SIZE, this.BLOCK_SIZE);
+                        this.nextCtx.strokeRect(pixelX, pixelY, previewBlockSize, previewBlockSize);
                     }
                 }
             }
