@@ -72,6 +72,11 @@ main {
     margin: 0;
 }
 
+/* 历史页筛选控件与全局表单风格一致 */
+.history-controls {
+    margin-bottom: 0.5rem;
+}
+
 .list-item {
     background-color: var(--card-bg-color);
     border-radius: 8px;
