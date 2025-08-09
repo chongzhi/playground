@@ -8,8 +8,15 @@
 </head>
 <body>
     <div id="app">
-        <header>
-            <h1 id="header-title">我的持仓</h1>
+        <header class="app-header">
+            <div class="header-bar">
+                <h1 id="header-title">我的持仓</h1>
+                <div class="header-actions">
+                    <select id="history-stock-filter" aria-label="个股筛选" style="display: none;">
+                        <option value="__all__">全部</option>
+                    </select>
+                </div>
+            </div>
         </header>
 
         <main>
@@ -103,12 +110,6 @@
 
             <!-- 历史明细视图 -->
             <div id="history-view" class="view">
-                <div class="form-group history-controls">
-                    <label for="history-stock-filter">个股筛选</label>
-                    <select id="history-stock-filter">
-                        <option value="__all__">全部</option>
-                    </select>
-                </div>
                 <div id="history-summary" class="history-summary" style="margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #666);"></div>
                 <ul id="history-list">
                     <!-- 历史记录将在这里动态生成 -->

@@ -59,6 +59,11 @@ export function bootstrapUI() {
     Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
     if (navButtons[viewName]) navButtons[viewName].classList.add('active');
 
+    // 头部历史筛选器显隐
+    if (historyStockFilter) {
+      historyStockFilter.style.display = viewName === 'history' ? 'block' : 'none';
+    }
+
     switch (viewName) {
       case 'holdings':
         headerTitle.textContent = '我的持仓';
@@ -226,6 +231,9 @@ export function bootstrapUI() {
           const isSelected = selected === code ? ' selected' : '';
           return `<option value="${value}"${isSelected}>${label}</option>`;
         }).join('');
+      // 仅当在历史页面时显示头部筛选器
+      const isHistoryActive = document.querySelector('#history-view').classList.contains('active');
+      historyStockFilter.style.display = isHistoryActive ? 'block' : 'none';
     }
 
     const filterCode = historyStockFilter && historyStockFilter.value && historyStockFilter.value !== '__all__'
@@ -621,6 +629,12 @@ export function bootstrapUI() {
   // 初始化渲染
   const savedTab = getCurrentTab();
   switchView(savedTab);
+
+  // 首次根据当前视图显隐头部筛选器
+  if (historyStockFilter) {
+    const isHistoryActive = document.querySelector('#history-view').classList.contains('active');
+    historyStockFilter.style.display = isHistoryActive ? 'block' : 'none';
+  }
 
   // 跟随系统主题变化刷新当前视图
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
