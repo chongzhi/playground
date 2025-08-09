@@ -1,7 +1,7 @@
 {
-  "name": "kimi-k2-test",
+  "name": "github-playground",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "c": "git add -A; git commit -m 'dev'; git push",
