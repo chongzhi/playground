@@ -215,7 +215,15 @@ export function bootstrapUI() {
   }
 
   function renderHistory() {
-    const allTransactions = getTransactions().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const allTransactions = getTransactions()
+      .slice()
+      .sort((a, b) => {
+        const da = new Date(a.date);
+        const db = new Date(b.date);
+        const va = isNaN(db) ? 0 : db.getTime();
+        const vb = isNaN(da) ? 0 : da.getTime();
+        return va - vb;
+      });
 
     // 初始化/更新筛选项
     if (historyStockFilter) {
@@ -239,9 +247,17 @@ export function bootstrapUI() {
     const filterCode = historyStockFilter && historyStockFilter.value && historyStockFilter.value !== '__all__'
       ? historyStockFilter.value
       : null;
-    const transactions = filterCode
+    const transactions = (filterCode
       ? allTransactions.filter(tx => tx.code === filterCode)
-      : allTransactions;
+      : allTransactions).map(tx => ({
+        ...tx,
+        price: Number.isFinite(tx.price) ? tx.price : Number(tx.price) || 0,
+        quantity: Number.isFinite(tx.quantity) ? tx.quantity : parseInt(tx.quantity, 10) || 0,
+        date: tx.date || '',
+        type: tx.type === 'sell' ? 'sell' : 'buy',
+        code: (tx.code || '').toString().toUpperCase(),
+        name: tx.name || '',
+      }));
 
     historyList.innerHTML = '';
     if (transactions.length === 0) {
@@ -252,6 +268,9 @@ export function bootstrapUI() {
     historyEmptyState.style.display = 'none';
 
     for (const tx of transactions) {
+      const priceNum = Number.isFinite(tx.price) ? tx.price : 0;
+      const qtyNum = Number.isFinite(tx.quantity) ? tx.quantity : 0;
+      const totalVal = priceNum * qtyNum;
       const item = document.createElement('li');
       item.className = `list-item transaction-type-${tx.type}`;
       item.innerHTML = `
@@ -267,9 +286,9 @@ export function bootstrapUI() {
         </div>
         <div class="item-details">
           <div class="item-col-1"><span>类型</span><span>${tx.type === 'buy' ? '买入' : '卖出'}</span></div>
-          <div class="item-col-2"><span>价格</span><span class="value-price">$${tx.price.toLocaleString('en-US')}</span></div>
-          <div class="item-col-3"><span>数量</span><span class="value-quantity">${tx.quantity.toLocaleString('en-US')}</span></div>
-          <div class="item-col-4"><span>总值</span><span class="value-total">$${(tx.price * tx.quantity).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
+          <div class="item-col-2"><span>价格</span><span class="value-price">$${priceNum.toLocaleString('en-US')}</span></div>
+          <div class="item-col-3"><span>数量</span><span class="value-quantity">${qtyNum.toLocaleString('en-US')}</span></div>
+          <div class="item-col-4"><span>总值</span><span class="value-total">$${totalVal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
         </div>
       `;
 
@@ -287,12 +306,20 @@ export function bootstrapUI() {
       let totalBuyCost = 0;   // 累计买入成本
       let totalSellIncome = 0; // 累计卖出收入
       for (const tx of transactions) {
-        const value = tx.price * tx.quantity;
+        const priceNum = Number.isFinite(tx.price) ? tx.price : 0;
+        const qtyNum = Number.isFinite(tx.quantity) ? tx.quantity : 0;
+        const value = priceNum * qtyNum;
         if (tx.type === 'buy') totalBuyCost += value; else totalSellIncome += value;
       }
 
-      // 计算筛选范围内的当前持仓与市值
-      const ascending = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+      // 计算筛选范围内的当前持仓与市值（仅使用有效的正数量交易）
+      const ascending = [...transactions]
+        .filter(tx => Number.isFinite(tx.quantity) && tx.quantity > 0)
+        .sort((a, b) => {
+          const da = new Date(a.date);
+          const db = new Date(b.date);
+          return (isNaN(da) ? 0 : da.getTime()) - (isNaN(db) ? 0 : db.getTime());
+        });
       const partialHoldings = calculateHoldings(ascending);
       let holdingsMarketValue = 0;
       for (const stock of Object.values(partialHoldings)) {
@@ -306,7 +333,7 @@ export function bootstrapUI() {
       const pnlAbs = Math.abs(totalPnL);
 
       const title = filterCode ? `筛选：${filterCode}` : '全部交易汇总';
-      historySummary.innerHTML = `${title} ｜ 买入总额：$${totalBuyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })} ｜ 卖出总额：$${totalSellIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })} ｜ 持仓市值：$${holdingsMarketValue.toLocaleString('en-US', { maximumFractionDigits: 0 })} ｜ 合计盈亏：<span class="${totalPnL>0?'positive':totalPnL<0?'negative':'neutral'}">${pnlSign}$${pnlAbs.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>`;
+      historySummary.innerHTML = `${title} ｜ 买入总额：<span class="hs-val">$${totalBuyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 卖出总额：<span class=\"hs-val\">$${totalSellIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 持仓市值：<span class=\"hs-val\">$${holdingsMarketValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 合计盈亏：<span class=\"pnl-val ${totalPnL>0?'positive':totalPnL<0?'negative':'neutral'}\">${pnlSign}$${pnlAbs.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>`;
     }
   }
 
@@ -569,23 +596,65 @@ export function bootstrapUI() {
     switchView(previousView);
   });
 
-  // 表单输入变更时实时更新提示
+  // 表单输入变更时实时更新提示 + 校验
   const priceInput = document.getElementById('transaction-price');
   const typeSelect = document.getElementById('transaction-type');
+  const qtyInput = document.getElementById('transaction-quantity');
+  const codeInput = document.getElementById('stock-code');
+  const nameInput = document.getElementById('stock-name');
+  const dateInput = document.getElementById('transaction-date');
   if (priceInput) priceInput.addEventListener('input', updateBuyCapacityHint);
   if (typeSelect) typeSelect.addEventListener('change', updateBuyCapacityHint);
+  [priceInput, typeSelect, qtyInput, codeInput, nameInput, dateInput].forEach(el => {
+    if (!el) return;
+    ['input', 'change', 'blur'].forEach(evt => el.addEventListener(evt, () => el.setCustomValidity('')));
+  });
 
   transactionForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const transactionId = document.getElementById('transaction-id').value;
+
+    // 清理旧的自定义错误并执行原生校验
+    [codeInput, nameInput, typeSelect, priceInput, qtyInput, dateInput].forEach(el => el && el.setCustomValidity(''));
+    if (!transactionForm.checkValidity()) {
+      transactionForm.reportValidity();
+      return;
+    }
+
+    // 读取并标准化数据
+    const code = codeInput.value.trim().toUpperCase();
+    const name = nameInput.value.trim();
+    const type = typeSelect.value.trim();
+    const price = parseFloat(priceInput.value.trim());
+    const quantity = parseInt(qtyInput.value.trim(), 10);
+    const date = dateInput.value.trim();
+
+    // 业务校验
+    if (!Number.isFinite(price) || price <= 0) {
+      priceInput.setCustomValidity('价格必须是大于 0 的数字');
+      priceInput.reportValidity();
+      return;
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      qtyInput.setCustomValidity('数量必须是正整数');
+      qtyInput.reportValidity();
+      return;
+    }
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (date > todayStr) {
+      dateInput.setCustomValidity('交易日期不能晚于今天');
+      dateInput.reportValidity();
+      return;
+    }
+
     const transactionData = {
       id: transactionId || Date.now().toString(),
-      code: document.getElementById('stock-code').value.trim().toUpperCase(),
-      name: document.getElementById('stock-name').value.trim(),
-      type: document.getElementById('transaction-type').value.trim(),
-      price: parseFloat(document.getElementById('transaction-price').value.trim()),
-      quantity: parseInt(document.getElementById('transaction-quantity').value.trim(), 10),
-      date: document.getElementById('transaction-date').value.trim(),
+      code,
+      name,
+      type,
+      price,
+      quantity,
+      date,
     };
 
     if (transactionData.type === 'buy') {
@@ -596,7 +665,10 @@ export function bootstrapUI() {
       const totalCost = transactionData.price * transactionData.quantity;
       if (totalCost > currentBalance) {
         const maxQuantity = Math.floor(currentBalance / transactionData.price);
-        alert(`余额不足！当前余额：$${currentBalance.toLocaleString('en-US')}，需要：$${totalCost.toLocaleString('en-US')}\n在当前价格下，最多可买 ${maxQuantity} 股`);
+        if (qtyInput) {
+          qtyInput.setCustomValidity(`余额不足，最多可买 ${Math.max(0, maxQuantity)} 股`);
+          qtyInput.reportValidity();
+        }
         return;
       }
     }
@@ -609,7 +681,10 @@ export function bootstrapUI() {
       const holding = holdings[transactionData.code];
       const available = holding ? holding.quantity : 0;
       if (transactionData.quantity > available) {
-        alert(`持仓数量不足！当前持仓：${available} 股，尝试卖出：${transactionData.quantity} 股`);
+        if (qtyInput) {
+          qtyInput.setCustomValidity(`持仓不足，当前可卖 ${available} 股`);
+          qtyInput.reportValidity();
+        }
         return;
       }
     }

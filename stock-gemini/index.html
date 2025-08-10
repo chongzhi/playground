@@ -69,15 +69,15 @@
 
             <!-- 添加/编辑交易视图 -->
             <div id="transaction-view" class="view">
-                <form id="transaction-form">
+                <form id="transaction-form" novalidate>
                     <input type="hidden" id="transaction-id">
                     <div class="form-group">
                         <label for="stock-code">股票代码</label>
-                        <input type="text" id="stock-code" placeholder="例如：AAPL" required>
+                        <input type="text" id="stock-code" placeholder="例如：AAPL" required pattern="^[A-Za-z0-9][A-Za-z0-9.\-:]{0,11}$" maxlength="12" inputmode="text" autocapitalize="characters" title="代码由字母/数字/.-: 组成，长度1-12，且以字母或数字开头">
                     </div>
                     <div class="form-group">
                         <label for="stock-name">股票名称</label>
-                        <input type="text" id="stock-name" placeholder="例如：苹果" required>
+                        <input type="text" id="stock-name" placeholder="例如：苹果" required maxlength="30">
                     </div>
                     <div class="form-group">
                         <label for="transaction-type">交易类型</label>
@@ -88,12 +88,12 @@
                     </div>
                     <div class="form-group">
                         <label for="transaction-price">成交价格</label>
-                        <input type="number" id="transaction-price" step="0.01" placeholder="请输入价格" required>
+                        <input type="number" id="transaction-price" step="0.01" min="0.01" inputmode="decimal" placeholder="请输入价格" required>
                     </div>
                     <div class="form-group">
                         <label for="transaction-quantity">成交数量</label>
-                        <input type="number" id="transaction-quantity" placeholder="请输入数量" required>
-                        <div id="buy-capacity-hint" class="form-hint" style="margin-top: 6px; font-size: 0.9rem; color: var(--text-secondary, #666); display: none;">
+                        <input type="number" id="transaction-quantity" min="1" step="1" inputmode="numeric" placeholder="请输入数量" required>
+                        <div id="buy-capacity-hint" class="form-hint" aria-live="polite" style="margin-top: 6px; font-size: 0.9rem; color: var(--text-secondary, #666); display: none;">
                             <!-- 实时提示内容注入 -->
                         </div>
                     </div>

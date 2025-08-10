@@ -98,8 +98,20 @@ main {
 
 /* 历史汇总与列表之间的间距 */
 .history-summary {
-    margin-top: 0.75rem;
+    /* 与标题行留白由 header 控制，这里仅设置下间距 */
     margin-bottom: 0.75rem;
+}
+
+/* 历史页汇总字段值固定为黑色（浅色/深色主题都为黑）*/
+.history-summary .hs-val { color: #000 !important; }
+/* 盈亏字段维持红涨绿跌，覆盖黑色 */
+.history-summary .pnl-val.positive { color: #D32F2F !important; }
+.history-summary .pnl-val.negative { color: #388E3C !important; }
+.history-summary .pnl-val.neutral  { color: #9E9E9E !important; }
+
+/* 深色模式下提升可读性：汇总数值改为白色 */
+@media (prefers-color-scheme: dark) {
+  .history-summary .hs-val { color: #fff !important; }
 }
 
 .list-item {
@@ -178,6 +190,8 @@ main {
     color: var(--text-color); /* 普通颜色 */
     font-weight: 500;
 }
+
+/* 历史记录页字段维持与全局一致的字重 */
 
 
 /* 持仓列表特定样式 */
@@ -778,6 +792,19 @@ main {
     border-radius: 6px;
     font-size: 1rem;
     background-color: #fff;
+}
+
+/* 无效态样式与提示 */
+.form-group input:invalid,
+.form-group select:invalid {
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.08);
+}
+
+.form-error {
+    color: #f44336;
+    font-size: 0.85rem;
+    margin-top: 0.35rem;
 }
 
 @media (prefers-color-scheme: dark) {
