@@ -49,6 +49,17 @@ export function calculateHoldings(transactions) {
 }
 
 /**
+ * 计算一笔交易的佣金（USD）：每股 0.02 美金，最低 5 美金
+ * @param {number} quantity
+ * @returns {number}
+ */
+export function calculateCommission(quantity) {
+  const safeQty = Number.isFinite(quantity) ? Math.max(0, quantity) : 0;
+  const fee = Math.max(5, 0.02 * safeQty);
+  return fee;
+}
+
+/**
  * 计算账户现金余额
  * @param {Array} transactions 
  * @param {number} initialFunds 
@@ -59,10 +70,13 @@ export function calculateAccountBalance(transactions, initialFunds) {
     (a, b) => new Date(a.date) - new Date(b.date)
   );
   for (const tx of sortedTransactions) {
+    const safePrice = Number.isFinite(tx.price) ? tx.price : 0;
+    const safeQty = Number.isFinite(tx.quantity) ? tx.quantity : 0;
+    const fee = calculateCommission(safeQty);
     if (tx.type === 'buy') {
-      balance -= tx.price * tx.quantity;
+      balance -= safePrice * safeQty + fee;
     } else {
-      balance += tx.price * tx.quantity;
+      balance += safePrice * safeQty - fee;
     }
   }
   return balance;

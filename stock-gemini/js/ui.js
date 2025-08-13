@@ -9,7 +9,7 @@ import {
   getCurrentTab, setCurrentTab,
   clearAppData,
 } from './storage.js';
-import { calculateHoldings, calculateAccountBalance, calculateProfitAnalysis } from './calculations.js';
+import { calculateHoldings, calculateAccountBalance, calculateProfitAnalysis, calculateCommission } from './calculations.js';
 
 export function bootstrapUI() {
   const views = {
@@ -454,18 +454,15 @@ export function bootstrapUI() {
     }
   }
 
-  // 实时提示：账户余额与基于当前价格的最大可买数量
+  // 实时提示：账户余额、预计佣金与基于当前价格的最大可买数量（含佣金）
   function updateBuyCapacityHint() {
     if (!buyCapacityHint) return;
     const type = document.getElementById('transaction-type').value;
     const price = parseFloat(document.getElementById('transaction-price').value);
+    const qty = parseInt(document.getElementById('transaction-quantity').value, 10);
     const transactionId = document.getElementById('transaction-id').value;
 
-    if (type !== 'buy') {
-      buyCapacityHint.style.display = 'none';
-      buyCapacityHint.textContent = '';
-      return;
-    }
+    // 对于卖出也提示佣金，因此不再在此直接返回
 
     const all = getTransactions();
     let temp = [...all];
@@ -473,13 +470,40 @@ export function bootstrapUI() {
     const currentBalance = calculateAccountBalance(temp, initialFunds);
 
     const safePrice = Number.isFinite(price) && price > 0 ? price : 0;
-    const maxQuantity = safePrice > 0 ? Math.floor(currentBalance / safePrice) : 0;
 
-    const balanceText = `$${currentBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-    const maxQtyText = `${Math.max(0, maxQuantity).toLocaleString('en-US')}`;
+    // 计算预计佣金（基于当前输入数量，若无数量则显示 0）
+    const safeQty = Number.isInteger(qty) && qty > 0 ? qty : 0;
+    const estimatedFee = safeQty > 0 ? calculateCommission(safeQty) : 0;
 
     buyCapacityHint.style.display = 'block';
-    buyCapacityHint.textContent = `账户余额：${balanceText}，当前价格下最多可买：${maxQtyText} 股`;
+    if (type === 'buy') {
+      // 在计算最多可买时，需要考虑佣金：max q 满足 price*q + fee(q) <= balance
+      // fee(q) = max(5, 0.02*q)
+      // 分段求解：
+      // 1) 若 q <= 250，则 fee=5，price*q + 5 <= balance => q <= (balance-5)/price
+      // 2) 若 q > 250，则 fee=0.02*q，(price+0.02)*q <= balance => q <= balance/(price+0.02)
+      let maxQuantity = 0;
+      if (safePrice > 0) {
+        const candidateA = Math.floor(Math.max(0, (currentBalance - 5) / safePrice));
+        const candidateB = Math.floor(currentBalance / (safePrice + 0.02));
+        // 校正候选满足对应区间条件
+        const validA = candidateA <= 250 ? candidateA : 250;
+        const validB = candidateB > 250 ? candidateB : 250;
+        // 取两者中总成本含费不超过余额的最大值
+        const totalCostA = validA * safePrice + (validA > 0 ? 5 : 0);
+        const totalCostB = validB * safePrice + Math.max(5, 0.02 * validB);
+        maxQuantity = 0;
+        if (totalCostA <= currentBalance) maxQuantity = Math.max(maxQuantity, validA);
+        if (totalCostB <= currentBalance) maxQuantity = Math.max(maxQuantity, validB);
+      }
+      const balanceText = `$${currentBalance.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      const feeText = `$${estimatedFee.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+      const maxQtyText = `${Math.max(0, maxQuantity).toLocaleString('en-US')}`;
+      buyCapacityHint.textContent = `账户余额：${balanceText}，预计佣金：${feeText}，最多可买：${maxQtyText} 股`;
+    } else {
+      const feeText = `$${estimatedFee.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+      buyCapacityHint.textContent = `预计佣金：${feeText}`;
+    }
   }
 
   // 事件绑定
@@ -609,6 +633,7 @@ export function bootstrapUI() {
   const dateInput = document.getElementById('transaction-date');
   if (priceInput) priceInput.addEventListener('input', updateBuyCapacityHint);
   if (typeSelect) typeSelect.addEventListener('change', updateBuyCapacityHint);
+  if (qtyInput) qtyInput.addEventListener('input', updateBuyCapacityHint);
   [priceInput, typeSelect, qtyInput, codeInput, nameInput, dateInput].forEach(el => {
     if (!el) return;
     ['input', 'change', 'blur'].forEach(evt => el.addEventListener(evt, () => el.setCustomValidity('')));
@@ -666,9 +691,20 @@ export function bootstrapUI() {
       let temp = [...transactions];
       if (transactionId) temp = temp.filter(tx => tx.id !== transactionId);
       const currentBalance = calculateAccountBalance(temp, initialFunds);
-      const totalCost = transactionData.price * transactionData.quantity;
+      const fee = calculateCommission(transactionData.quantity);
+      const totalCost = transactionData.price * transactionData.quantity + fee;
       if (totalCost > currentBalance) {
-        const maxQuantity = Math.floor(currentBalance / transactionData.price);
+        // 使用与提示一致的含佣金最大可买数量
+        const price = transactionData.price;
+        const candidateA = Math.floor(Math.max(0, (currentBalance - 5) / price));
+        const candidateB = Math.floor(currentBalance / (price + 0.02));
+        const validA = candidateA <= 250 ? candidateA : 250;
+        const validB = candidateB > 250 ? candidateB : 250;
+        let maxQuantity = 0;
+        const costA = validA * price + (validA > 0 ? 5 : 0);
+        const costB = validB * price + Math.max(5, 0.02 * validB);
+        if (costA <= currentBalance) maxQuantity = Math.max(maxQuantity, validA);
+        if (costB <= currentBalance) maxQuantity = Math.max(maxQuantity, validB);
         if (qtyInput) {
           qtyInput.setCustomValidity(`余额不足，最多可买 ${Math.max(0, maxQuantity)} 股`);
           qtyInput.reportValidity();
