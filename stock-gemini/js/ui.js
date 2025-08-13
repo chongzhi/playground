@@ -331,9 +331,13 @@ export function bootstrapUI() {
       const totalPnL = totalSellIncome + holdingsMarketValue - totalBuyCost;
       const pnlSign = totalPnL > 0 ? '+' : totalPnL < 0 ? '-' : '';
       const pnlAbs = Math.abs(totalPnL);
+      // 以买入总额为基数的盈亏百分比
+      const pnlPercent = totalBuyCost > 0 ? (totalPnL / totalBuyCost) * 100 : 0;
+      const percentSign = pnlPercent > 0 ? '+' : pnlPercent < 0 ? '-' : '';
+      const absPercent = Math.abs(pnlPercent);
 
       const title = filterCode ? `筛选：${filterCode}` : '全部交易汇总';
-      historySummary.innerHTML = `${title} ｜ 买入总额：<span class="hs-val">$${totalBuyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 卖出总额：<span class=\"hs-val\">$${totalSellIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 持仓市值：<span class=\"hs-val\">$${holdingsMarketValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 合计盈亏：<span class=\"pnl-val ${totalPnL>0?'positive':totalPnL<0?'negative':'neutral'}\">${pnlSign}$${pnlAbs.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>`;
+      historySummary.innerHTML = `${title} ｜ 买入总额：<span class="hs-val">$${totalBuyCost.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 卖出总额：<span class=\"hs-val\">$${totalSellIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 持仓市值：<span class=\"hs-val\">$${holdingsMarketValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span> ｜ 合计盈亏：<span class=\"pnl-val ${totalPnL>0?'positive':totalPnL<0?'negative':'neutral'}\">${pnlSign}$${pnlAbs.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${percentSign}${absPercent.toFixed(2)}%)</span>`;
     }
   }
 
