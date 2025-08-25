@@ -7,7 +7,6 @@ import {
   getInitialFunds, setInitialFunds,
   getExchangeRate, setExchangeRate,
   getCurrentTab, setCurrentTab,
-  clearAppData,
 } from './storage.js';
 import { calculateHoldings, calculateAccountBalance, calculateProfitAnalysis, calculateCommission } from './calculations.js';
 
@@ -612,12 +611,6 @@ export function bootstrapUI() {
     input.click();
   });
 
-  document.getElementById('clear-data-btn').addEventListener('click', () => {
-    if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
-      clearAppData();
-      location.reload();
-    }
-  });
 
   cancelBtn.addEventListener('click', () => {
     transactionForm.reset();
