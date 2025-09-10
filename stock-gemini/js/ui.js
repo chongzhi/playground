@@ -33,6 +33,8 @@ export function bootstrapUI() {
   const historyList = document.getElementById('history-list');
   const historySummary = document.getElementById('history-summary');
   const historyStockFilter = document.getElementById('history-stock-filter');
+  const filterModeHolding = document.getElementById('filter-mode-holding');
+  const filterModeSold = document.getElementById('filter-mode-sold');
   const profitList = document.getElementById('profit-list');
   const cancelBtn = document.getElementById('cancel-btn');
   const buyCapacityHint = document.getElementById('buy-capacity-hint');
@@ -46,6 +48,7 @@ export function bootstrapUI() {
   let initialFunds = getInitialFunds();
   let exchangeRate = getExchangeRate();
   let previousView = 'holdings';
+  let historyFilterMode = 'holding'; // 'holding' or 'sold'
 
   function switchView(viewName) {
     if (viewName !== 'transaction') {
@@ -57,11 +60,6 @@ export function bootstrapUI() {
 
     Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
     if (navButtons[viewName]) navButtons[viewName].classList.add('active');
-
-    // 头部历史筛选器显隐
-    if (historyStockFilter) {
-      historyStockFilter.style.display = viewName === 'history' ? 'block' : 'none';
-    }
 
     switch (viewName) {
       case 'holdings':
@@ -224,15 +222,41 @@ export function bootstrapUI() {
         return va - vb;
       });
 
+    // 计算当前持仓股票
+    const holdings = calculateHoldings(allTransactions);
+    const holdingStocks = Object.keys(holdings);
+    
+    // 计算已清仓股票（在交易记录中但不在当前持仓中的股票）
+    const allStocksInTransactions = Array.from(new Set(allTransactions.map(tx => tx.code)));
+    const soldStocks = allStocksInTransactions.filter(code => !holdingStocks.includes(code));
+
+    // 根据筛选模式确定可选股票
+    let availableStocks = [];
+    if (historyFilterMode === 'holding') {
+      availableStocks = holdingStocks;
+    } else if (historyFilterMode === 'sold') {
+      availableStocks = soldStocks;
+    }
+
     // 初始化/更新筛选项
     if (historyStockFilter) {
-      const uniqueStocks = Array.from(new Set(allTransactions.map(tx => `${tx.code}|${tx.name}`)))
+      // 获取与当前模式相关的交易记录中的股票信息
+      let relevantTransactions = allTransactions;
+      if (historyFilterMode === 'holding') {
+        relevantTransactions = allTransactions.filter(tx => holdingStocks.includes(tx.code));
+      } else if (historyFilterMode === 'sold') {
+        relevantTransactions = allTransactions.filter(tx => soldStocks.includes(tx.code));
+      }
+      
+      const uniqueStocks = Array.from(new Set(relevantTransactions.map(tx => `${tx.code}|${tx.name}`)))
         .filter(k => k && !k.startsWith('|'))
         .sort();
       const selected = historyStockFilter.value || '__all__';
       historyStockFilter.innerHTML = '<option value="__all__">全部</option>' +
         uniqueStocks.map(k => {
           const [code, name] = k.split('|');
+          // 只显示当前模式下的股票
+          if (!availableStocks.includes(code)) return '';
           const value = code;
           const label = name ? `${name} (${code})` : code;
           const isSelected = selected === code ? ' selected' : '';
@@ -246,9 +270,18 @@ export function bootstrapUI() {
     const filterCode = historyStockFilter && historyStockFilter.value && historyStockFilter.value !== '__all__'
       ? historyStockFilter.value
       : null;
+      
+    // 根据筛选模式和具体股票筛选条件过滤交易记录
+    let filteredTransactions = allTransactions;
+    if (historyFilterMode === 'holding') {
+      filteredTransactions = allTransactions.filter(tx => holdingStocks.includes(tx.code));
+    } else if (historyFilterMode === 'sold') {
+      filteredTransactions = allTransactions.filter(tx => soldStocks.includes(tx.code));
+    }
+    
     const transactions = (filterCode
-      ? allTransactions.filter(tx => tx.code === filterCode)
-      : allTransactions).map(tx => ({
+      ? filteredTransactions.filter(tx => tx.code === filterCode)
+      : filteredTransactions).map(tx => ({
         ...tx,
         price: Number.isFinite(tx.price) ? tx.price : Number(tx.price) || 0,
         quantity: Number.isFinite(tx.quantity) ? tx.quantity : parseInt(tx.quantity, 10) || 0,
@@ -521,6 +554,20 @@ export function bootstrapUI() {
   navButtons.history.addEventListener('click', () => switchView('history'));
   if (historyStockFilter) {
     historyStockFilter.addEventListener('change', () => {
+      renderHistory();
+    });
+  }
+  if (filterModeHolding && filterModeSold) {
+    filterModeHolding.addEventListener('click', () => {
+      historyFilterMode = 'holding';
+      filterModeHolding.classList.add('active');
+      filterModeSold.classList.remove('active');
+      renderHistory();
+    });
+    filterModeSold.addEventListener('click', () => {
+      historyFilterMode = 'sold';
+      filterModeSold.classList.add('active');
+      filterModeHolding.classList.remove('active');
       renderHistory();
     });
   }

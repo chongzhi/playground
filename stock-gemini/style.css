@@ -74,6 +74,78 @@ body {
     box-shadow: 0 0 0 2px rgba(255,255,255,0.25);
 }
 
+.history-filter-controls select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: var(--card-bg-color);
+    color: var(--text-color);
+}
+
+.history-filter-controls select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* 历史记录页筛选区域 */
+.history-filter-section {
+    margin-bottom: 1rem;
+}
+
+/* 历史记录页筛选器控制区域 */
+.history-filter-controls {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 筛选模式标签页 */
+.filter-mode-tabs {
+    display: flex;
+    background: rgba(0,0,0,0.05);
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .filter-mode-tabs {
+        background: rgba(255,255,255,0.1);
+    }
+}
+
+.filter-mode-btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.filter-mode-btn.active {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.filter-mode-btn:hover:not(.active) {
+    background: rgba(0,0,0,0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+    .filter-mode-btn:hover:not(.active) {
+        background: rgba(255,255,255,0.1);
+    }
+}
+
 main {
     flex-grow: 1;
     overflow-y: auto;
@@ -998,6 +1070,11 @@ nav {
     
     .input-wrapper .currency-symbol {
         color: #999;
+    }
+    
+    .history-filter-controls select {
+        background-color: #3d3d3d;
+        color: #fff;
     }
 }
 

@@ -12,9 +12,7 @@
             <div class="header-bar">
                 <h1 id="header-title">我的持仓</h1>
                 <div class="header-actions">
-                    <select id="history-stock-filter" aria-label="个股筛选" style="display: none;">
-                        <option value="__all__">全部</option>
-                    </select>
+                    <!-- 筛选器已移至历史记录内容区 -->
                 </div>
             </div>
         </header>
@@ -110,6 +108,19 @@
 
             <!-- 历史明细视图 -->
             <div id="history-view" class="view">
+                <!-- 历史记录筛选器 -->
+                <div class="history-filter-section">
+                    <div class="history-filter-controls">
+                        <div class="filter-mode-tabs">
+                            <button id="filter-mode-holding" class="filter-mode-btn active" data-mode="holding">持仓股票</button>
+                            <button id="filter-mode-sold" class="filter-mode-btn" data-mode="sold">已清仓股票</button>
+                        </div>
+                        <select id="history-stock-filter" aria-label="个股筛选" style="display: none;">
+                            <option value="__all__">全部</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <div id="history-summary" class="history-summary" style="margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #666);"></div>
                 <ul id="history-list">
                     <!-- 历史记录将在这里动态生成 -->
