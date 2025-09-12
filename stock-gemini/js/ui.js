@@ -189,9 +189,9 @@ export function bootstrapUI() {
         </div>
         <div class="item-details">
           <div class="item-col-1"><span>持仓</span><span class="value-quantity">${stock.quantity.toLocaleString('en-US')}</span></div>
-          <div class="item-col-2"><span>成本</span><span class="value-price">${stock.avgCost.toFixed(2)}</span></div>
-          <div class="item-col-3"><span>现价</span><span class="value-price">${currentPrice.toFixed(2)}</span></div>
-          <div class="item-col-4"><span>总市值</span><span class="value-total">${(stock.quantity * currentPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</span></div>
+          <div class="item-col-2"><span>成本</span><span class="value-price">$${stock.avgCost.toFixed(2)}</span></div>
+          <div class="item-col-3"><span>现价</span><span class="value-price">$${currentPrice.toFixed(2)}</span></div>
+          <div class="item-col-4"><span>总市值</span><span class="value-total">$${(stock.quantity * currentPrice).toLocaleString('en-US', { maximumFractionDigits: 2 })}</span></div>
         </div>
       `;
       holdingsList.appendChild(item);
