@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>精度处理测试</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    .pass { color: #2e7d32; }
+    .fail { color: #c62828; }
+    code { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
+    .section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>精度处理测试</h1>
+  <div id="results"></div>
+
+  <script type="module">
+    // 添加时间戳避免模块缓存
+    const timestamp = Date.now();
+    const { roundToDecimals, add, subtract, multiply, divide, formatMoney } = await import(`../js/precision.js?t=${timestamp}`);
+    const { calculateHoldings, calculateAccountBalance, calculateCommission } = await import(`../js/calculations.js?t=${timestamp}`);
+
+    const results = document.getElementById('results');
+    let passed = 0; let failed = 0; let total = 0;
+
+    function expect(name, fn) {
+      total++;
+      try {
+        fn();
+        const p = document.createElement('p');
+        p.className = 'pass';
+        p.textContent = `✓ ${name}`;
+        results.appendChild(p);
+        passed++;
+      } catch (err) {
+        const p = document.createElement('p');
+        p.className = 'fail';
+        p.innerHTML = `✗ ${name}<br><code>${err && err.message ? err.message : err}</code>`;
+        results.appendChild(p);
+        failed++;
+      }
+    }
+
+    function assertEqual(actual, expected, msg) {
+      if (actual !== expected) throw new Error(`${msg} | actual=${actual}, expected=${expected}`);
+    }
+
+    // 创建章节
+    function section(title) {
+      const div = document.createElement('div');
+      div.className = 'section';
+      const h2 = document.createElement('h2');
+      h2.textContent = title;
+      div.appendChild(h2);
+      results.appendChild(div);
+      return div;
+    }
+
+    // 1. 基础精度测试
+    const s1 = section('1. 基础精度测试');
+    
+    expect('roundToDecimals() 基本四舍五入', () => {
+      assertEqual(roundToDecimals(123.456), 123.46, '应该四舍五入到2位小数');
+      assertEqual(roundToDecimals(123.454), 123.45, '应该向下舍入');
+      assertEqual(roundToDecimals(0.1 + 0.2), 0.3, '应该修正浮点误差');
+    });
+
+    expect('add() 精确加法', () => {
+      assertEqual(add(0.1, 0.2), 0.3, '0.1 + 0.2 应该等于 0.3');
+      assertEqual(add(1.23, 4.56), 5.79, '1.23 + 4.56 应该等于 5.79');
+    });
+
+    expect('subtract() 精确减法', () => {
+      assertEqual(subtract(1.0, 0.9), 0.1, '1.0 - 0.9 应该等于 0.1');
+      assertEqual(subtract(5.55, 2.22), 3.33, '5.55 - 2.22 应该等于 3.33');
+    });
+
+    expect('multiply() 精确乘法', () => {
+      assertEqual(multiply(0.1, 0.2), 0.02, '0.1 × 0.2 应该等于 0.02');
+      assertEqual(multiply(123.45, 2), 246.9, '123.45 × 2 应该等于 246.90');
+    });
+
+    expect('divide() 精确除法', () => {
+      assertEqual(divide(1, 3), 0.33, '1 ÷ 3 应该等于 0.33');
+      assertEqual(divide(100, 3), 33.33, '100 ÷ 3 应该等于 33.33');
+    });
+
+    // 2. 价格字段精度测试
+    const s2 = section('2. 价格字段精度测试');
+
+    expect('交易价格精确到2位小数', () => {
+      const txs = [
+        { id: '1', code: 'AAPL', name: 'Apple', type: 'buy', price: 123.456789, quantity: 10, date: '2024-01-01' }
+      ];
+      const holdings = calculateHoldings(txs);
+      // calculateHoldings 内部会将 123.456789 标准化为 123.46
+      // 123.46 * 10 = 1234.60
+      assertEqual(holdings.AAPL.avgCost, 123.46, '平均成本应该精确到2位小数');
+      assertEqual(holdings.AAPL.totalCost, 1234.60, '总成本应该精确到2位小数');
+    });
+
+    expect('佣金计算精确到2位小数', () => {
+      const fee1 = calculateCommission(10);
+      assertEqual(fee1, 5.0, '最低佣金应该是 5.00');
+      
+      const fee2 = calculateCommission(300);
+      assertEqual(fee2, 6.0, '300股佣金应该是 6.00');
+    });
+
+    expect('账户余额精确到2位小数', () => {
+      const txs = [
+        { id: '1', code: 'AAPL', name: 'Apple', type: 'buy', price: 100.333, quantity: 10, date: '2024-01-01' }
+      ];
+      const balance = calculateAccountBalance(txs, 10000);
+      // 价格标准化为100.33, 计算后应该精确到2位小数
+      // 验证结果是一个2位小数的数字
+      const isValidPrecision = balance === Math.round(balance * 100) / 100;
+      if (!isValidPrecision) throw new Error('余额精度不正确');
+      // 验证余额在合理范围内（约8991-8992之间）
+      if (balance < 8991 || balance > 8992) throw new Error(`余额 ${balance} 不在预期范围内`);
+    });
+
+    // 3. 复杂计算场景测试
+    const s3 = section('3. 复杂计算场景测试');
+
+    expect('多次买入卖出后成本精度', () => {
+      const txs = [
+        { id: '1', code: 'AAPL', name: 'Apple', type: 'buy', price: 100.111, quantity: 10, date: '2024-01-01' },
+        { id: '2', code: 'AAPL', name: 'Apple', type: 'buy', price: 200.222, quantity: 10, date: '2024-02-01' },
+        { id: '3', code: 'AAPL', name: 'Apple', type: 'sell', price: 150.555, quantity: 5, date: '2024-03-01' }
+      ];
+      const holdings = calculateHoldings(txs);
+      
+      // 买入成本: 100.11*10=1001.10 + 200.22*10=2002.20 = 3003.30
+      // 卖出5股，平均成本 3003.30/20=150.165，卖出成本 150.165*5=750.825，约为750.83
+      // 剩余成本: 3003.30-750.83=2252.47
+      // 平均成本: 2252.47/15=150.16
+      assertEqual(holdings.AAPL.quantity, 15, '剩余数量应该是15股');
+      // 由于精度处理，实际值可能略有差异
+      const avgCost = holdings.AAPL.avgCost;
+      const isClose = Math.abs(avgCost - 150.16) < 0.02;
+      if (!isClose) throw new Error(`平均成本 ${avgCost} 与预期 150.16 差异过大`);
+    });
+
+    expect('formatMoney() 格式化显示', () => {
+      const formatted = formatMoney(1234.5678);
+      assertEqual(formatted, '$1234.57', '应该格式化为 $1234.57');
+    });
+
+    // 4. 边界情况测试
+    const s4 = section('4. 边界情况测试');
+
+    expect('处理非常小的数字', () => {
+      assertEqual(roundToDecimals(0.001), 0.0, '0.001 应该舍入为 0.00');
+      assertEqual(roundToDecimals(0.005), 0.01, '0.005 应该舍入为 0.01');
+    });
+
+    expect('处理非常大的数字', () => {
+      const large = 9999999.999;
+      assertEqual(roundToDecimals(large), 10000000.0, '应该正确处理大数');
+    });
+
+    expect('处理零和负数', () => {
+      assertEqual(roundToDecimals(0), 0, '零应该保持为零');
+      assertEqual(roundToDecimals(-123.456), -123.46, '负数应该正确舍入');
+    });
+
+    // 显示结果摘要
+    const summary = document.createElement('div');
+    summary.className = 'section';
+    summary.innerHTML = `
+      <h2>测试总结</h2>
+      <p><strong>总计：</strong> ${total} 个测试</p>
+      <p style="color: #2e7d32;"><strong>通过：</strong> ${passed} 个</p>
+      <p style="color: #c62828;"><strong>失败：</strong> ${failed} 个</p>
+      <p><strong>成功率：</strong> ${(passed/total*100).toFixed(2)}%</p>
+    `;
+    results.appendChild(summary);
+
+    console.log(`精度测试完成：通过 ${passed}/${total}，失败 ${failed}`);
+  </script>
+</body>
+</html>
+

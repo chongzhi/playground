@@ -9,6 +9,7 @@ import {
   getCurrentTab, setCurrentTab,
 } from './storage.js';
 import { calculateHoldings, calculateAccountBalance, calculateProfitAnalysis, calculateCommission } from './calculations.js';
+import { roundToDecimals } from './precision.js';
 
 export function bootstrapUI() {
   const views = {
@@ -576,8 +577,8 @@ export function bootstrapUI() {
   navButtons.settings.addEventListener('click', () => switchView('settings'));
 
   document.getElementById('save-all-settings-btn').addEventListener('click', () => {
-    const newInitialFunds = parseFloat(document.getElementById('initial-funds').value) || 0;
-    const newExchangeRate = parseFloat(document.getElementById('exchange-rate').value) || 7.2;
+    const newInitialFunds = roundToDecimals(parseFloat(document.getElementById('initial-funds').value) || 0);
+    const newExchangeRate = roundToDecimals(parseFloat(document.getElementById('exchange-rate').value) || 7.2);
 
     const transactions = getTransactions();
     const holdings = calculateHoldings(transactions);
@@ -585,7 +586,8 @@ export function bootstrapUI() {
     for (const stock of Object.values(holdings)) {
       const input = document.getElementById(`price-${stock.code}`);
       if (input && input.value) {
-        userPrices[stock.code] = parseFloat(input.value);
+        // 确保用户输入的价格精确到2位小数
+        userPrices[stock.code] = roundToDecimals(parseFloat(input.value));
       }
     }
 
@@ -717,12 +719,15 @@ export function bootstrapUI() {
       return;
     }
 
+    // 确保价格精确到2位小数
+    const normalizedPrice = roundToDecimals(price);
+    
     const transactionData = {
       id: transactionId || Date.now().toString(),
       code,
       name,
       type,
-      price,
+      price: normalizedPrice,
       quantity,
       date,
     };

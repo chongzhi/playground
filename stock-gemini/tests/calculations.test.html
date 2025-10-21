@@ -55,12 +55,13 @@
       { id: '4', code: 'MSFT', name: 'Microsoft', type: 'buy', price: 50, quantity: 4, date: '2024-01-15' },
     ];
 
-    // 1) 持仓：AAPL 应剩余 10 股，均价 200；MSFT 4 股，均价 50
+    // 1) 持仓：AAPL 应剩余 10 股，均价 150；MSFT 4 股，均价 50
+    // AAPL计算过程：买入10@100 + 买入10@200 = 20股$3000，卖出10股后剩余10股$1500，均价$150
     expect('calculateHoldings() 基本计算', () => {
       const h = calculateHoldings(txs);
       assertEqual(Object.keys(h).sort().join(','), 'AAPL,MSFT', '应有两只股票持仓');
       assertEqual(h.AAPL.quantity, 10, 'AAPL 剩余数量');
-      assertNear(h.AAPL.avgCost, 200, 1e-9, 'AAPL 平均成本');
+      assertNear(h.AAPL.avgCost, 150, 1e-9, 'AAPL 平均成本');
       assertEqual(h.MSFT.quantity, 4, 'MSFT 数量');
       assertNear(h.MSFT.avgCost, 50, 1e-9, 'MSFT 平均成本');
     });
@@ -81,13 +82,13 @@
     expect('calculateProfitAnalysis() 基本计算', () => {
       const h = calculateHoldings(txs);
       const p = calculateProfitAnalysis(h, { AAPL: 210, MSFT: 40 });
-      // AAPL: 10 * 210 = 2100，成本 200*10=2000，盈亏 +100
+      // AAPL: 10 * 210 = 2100，成本 150*10=1500，盈亏 +600
       // MSFT: 4 * 40 = 160，成本 4*50=200，盈亏 -40
-      // 总成本 2200，总市值 2260，总盈亏 +60
-      assertEqual(p.totalCost, 2200, '总成本');
+      // 总成本 1700，总市值 2260，总盈亏 +560
+      assertEqual(p.totalCost, 1700, '总成本');
       assertEqual(p.totalValue, 2260, '总市值');
-      assertEqual(p.totalProfit, 60, '总盈亏');
-      assertNear(p.totalProfitPercent, (60/2200)*100, 1e-9, '总收益率');
+      assertEqual(p.totalProfit, 560, '总盈亏');
+      assertNear(p.totalProfitPercent, (560/1700)*100, 1e-9, '总收益率');
     });
 
     const summary = document.createElement('p');

@@ -1,6 +1,8 @@
 // storage.js
 // 数据持久化与应用状态存取封装
 
+import { roundToDecimals } from './precision.js';
+
 export const STORAGE_KEYS = {
   TRANSACTIONS: 'stockTransactions',
   USER_PRICES: 'userStockPrices',
@@ -107,7 +109,12 @@ export function getTransactions() {
 }
 
 export function saveTransactions(transactions) {
-  localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+  // 确保所有价格字段都精确到2位小数
+  const normalizedTransactions = transactions.map(tx => ({
+    ...tx,
+    price: roundToDecimals(tx.price)
+  }));
+  localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(normalizedTransactions));
 }
 
 // 用户自定义现价映射
@@ -122,29 +129,36 @@ export function getUserPrices() {
 }
 
 export function saveUserPrices(userPrices) {
-  localStorage.setItem(STORAGE_KEYS.USER_PRICES, JSON.stringify(userPrices));
+  // 确保所有价格都精确到2位小数
+  const normalizedPrices = {};
+  for (const [code, price] of Object.entries(userPrices)) {
+    normalizedPrices[code] = roundToDecimals(price);
+  }
+  localStorage.setItem(STORAGE_KEYS.USER_PRICES, JSON.stringify(normalizedPrices));
 }
 
 // 初始资金
 export function getInitialFunds() {
   const raw = localStorage.getItem(STORAGE_KEYS.INITIAL_FUNDS);
   const value = raw ? parseFloat(raw) : 0;
-  return Number.isFinite(value) ? value : 0;
+  return Number.isFinite(value) ? roundToDecimals(value) : 0;
 }
 
 export function setInitialFunds(value) {
-  localStorage.setItem(STORAGE_KEYS.INITIAL_FUNDS, String(value ?? 0));
+  const normalized = roundToDecimals(value ?? 0);
+  localStorage.setItem(STORAGE_KEYS.INITIAL_FUNDS, String(normalized));
 }
 
 // 汇率
 export function getExchangeRate() {
   const raw = localStorage.getItem(STORAGE_KEYS.EXCHANGE_RATE);
   const value = raw ? parseFloat(raw) : 7.2;
-  return Number.isFinite(value) ? value : 7.2;
+  return Number.isFinite(value) ? roundToDecimals(value) : 7.2;
 }
 
 export function setExchangeRate(value) {
-  localStorage.setItem(STORAGE_KEYS.EXCHANGE_RATE, String(value ?? 7.2));
+  const normalized = roundToDecimals(value ?? 7.2);
+  localStorage.setItem(STORAGE_KEYS.EXCHANGE_RATE, String(normalized));
 }
 
 // 当前 Tab

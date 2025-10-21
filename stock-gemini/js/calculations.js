@@ -1,6 +1,8 @@
 // calculations.js
 // 业务计算逻辑：持仓、余额、盈亏等
 
+import { roundToDecimals, add, subtract, multiply, divide } from './precision.js';
+
 /**
  * 根据交易记录计算当前持仓（加权平均成本法）
  * @param {Array<{id:string, code:string, name:string, type:'buy'|'sell', price:number, quantity:number, date:string}>} transactions 
@@ -13,6 +15,9 @@ export function calculateHoldings(transactions) {
   );
 
   for (const tx of sortedTransactions) {
+    // 确保交易价格精确到2位小数
+    const normalizedPrice = roundToDecimals(tx.price);
+    
     if (!holdings[tx.code]) {
       holdings[tx.code] = {
         code: tx.code,
@@ -25,12 +30,16 @@ export function calculateHoldings(transactions) {
     const stock = holdings[tx.code];
 
     if (tx.type === 'buy') {
-      stock.totalCost += tx.price * tx.quantity;
+      // 使用精确计算：总成本 = 原成本 + 价格 × 数量
+      const buyCost = multiply(normalizedPrice, tx.quantity);
+      stock.totalCost = add(stock.totalCost, buyCost);
       stock.quantity += tx.quantity;
     } else {
       if (stock.quantity >= tx.quantity) {
-        const costOfSoldShares = (stock.totalCost / stock.quantity) * tx.quantity;
-        stock.totalCost -= costOfSoldShares;
+        // 使用精确计算：卖出成本 = (总成本 / 数量) × 卖出数量
+        const avgCost = divide(stock.totalCost, stock.quantity);
+        const costOfSoldShares = multiply(avgCost, tx.quantity);
+        stock.totalCost = subtract(stock.totalCost, costOfSoldShares);
         stock.quantity -= tx.quantity;
       } else {
         console.warn(
@@ -40,7 +49,10 @@ export function calculateHoldings(transactions) {
       }
     }
 
-    stock.avgCost = stock.quantity > 0 ? stock.totalCost / stock.quantity : 0;
+    // 计算平均成本，确保精度
+    stock.avgCost = stock.quantity > 0 ? divide(stock.totalCost, stock.quantity) : 0;
+    stock.totalCost = roundToDecimals(stock.totalCost);
+    stock.avgCost = roundToDecimals(stock.avgCost);
   }
 
   return Object.fromEntries(
@@ -55,8 +67,8 @@ export function calculateHoldings(transactions) {
  */
 export function calculateCommission(quantity) {
   const safeQty = Number.isFinite(quantity) ? Math.max(0, quantity) : 0;
-  const fee = Math.max(5, 0.02 * safeQty);
-  return fee;
+  const fee = multiply(0.02, safeQty);
+  return roundToDecimals(Math.max(5, fee));
 }
 
 /**
@@ -65,21 +77,26 @@ export function calculateCommission(quantity) {
  * @param {number} initialFunds 
  */
 export function calculateAccountBalance(transactions, initialFunds) {
-  let balance = initialFunds ?? 0;
+  let balance = roundToDecimals(initialFunds ?? 0);
   const sortedTransactions = [...transactions].sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
   for (const tx of sortedTransactions) {
-    const safePrice = Number.isFinite(tx.price) ? tx.price : 0;
+    const safePrice = Number.isFinite(tx.price) ? roundToDecimals(tx.price) : 0;
     const safeQty = Number.isFinite(tx.quantity) ? tx.quantity : 0;
     const fee = calculateCommission(safeQty);
+    
     if (tx.type === 'buy') {
-      balance -= safePrice * safeQty + fee;
+      // 买入：余额 = 余额 - (价格 × 数量) - 佣金
+      const cost = multiply(safePrice, safeQty);
+      balance = subtract(balance, add(cost, fee));
     } else {
-      balance += safePrice * safeQty - fee;
+      // 卖出：余额 = 余额 + (价格 × 数量) - 佣金
+      const income = multiply(safePrice, safeQty);
+      balance = add(balance, subtract(income, fee));
     }
   }
-  return balance;
+  return roundToDecimals(balance);
 }
 
 /**
@@ -93,31 +110,35 @@ export function calculateProfitAnalysis(holdings, userPrices) {
   const stockProfits = [];
 
   for (const stock of Object.values(holdings)) {
-    const currentPrice = userPrices[stock.code] || stock.avgCost;
-    const currentValue = stock.quantity * currentPrice;
-    const profit = currentValue - stock.totalCost;
-    const profitPercent = stock.totalCost > 0 ? (profit / stock.totalCost) * 100 : 0;
+    const currentPrice = roundToDecimals(userPrices[stock.code] || stock.avgCost);
+    const currentValue = multiply(stock.quantity, currentPrice);
+    const profit = subtract(currentValue, stock.totalCost);
+    const profitPercent = stock.totalCost > 0 
+      ? multiply(divide(profit, stock.totalCost), 100)
+      : 0;
 
-    totalCost += stock.totalCost;
-    totalValue += currentValue;
+    totalCost = add(totalCost, stock.totalCost);
+    totalValue = add(totalValue, currentValue);
 
     stockProfits.push({
       ...stock,
-      currentPrice,
-      currentValue,
-      profit,
-      profitPercent,
+      currentPrice: roundToDecimals(currentPrice),
+      currentValue: roundToDecimals(currentValue),
+      profit: roundToDecimals(profit),
+      profitPercent: roundToDecimals(profitPercent),
     });
   }
 
-  const totalProfit = totalValue - totalCost;
-  const totalProfitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+  const totalProfit = subtract(totalValue, totalCost);
+  const totalProfitPercent = totalCost > 0 
+    ? multiply(divide(totalProfit, totalCost), 100)
+    : 0;
 
   return {
-    totalCost,
-    totalValue,
-    totalProfit,
-    totalProfitPercent,
+    totalCost: roundToDecimals(totalCost),
+    totalValue: roundToDecimals(totalValue),
+    totalProfit: roundToDecimals(totalProfit),
+    totalProfitPercent: roundToDecimals(totalProfitPercent),
     stockProfits: stockProfits.sort((a, b) => Math.abs(b.profit) - Math.abs(a.profit)),
   };
 }
