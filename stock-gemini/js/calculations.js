@@ -141,6 +141,6 @@ export function calculateProfitAnalysis(holdings, userPrices) {
     totalValue: roundToDecimals(totalValue),
     totalProfit: roundToDecimals(totalProfit),
     totalProfitPercent: roundToDecimals(totalProfitPercent),
-    stockProfits: stockProfits.sort((a, b) => Math.abs(b.profit) - Math.abs(a.profit)),
+    stockProfits: stockProfits.sort((a, b) => b.currentValue - a.currentValue),
   };
 }
