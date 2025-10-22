@@ -110,11 +110,12 @@ export function calculateProfitAnalysis(holdings, userPrices) {
   const stockProfits = [];
 
   for (const stock of Object.values(holdings)) {
-    const currentPrice = roundToDecimals(userPrices[stock.code] || stock.avgCost);
+    const currentPrice = userPrices[stock.code] || stock.avgCost;  // 保持完整精度
     const currentValue = multiply(stock.quantity, currentPrice);
     const profit = subtract(currentValue, stock.totalCost);
-    const profitPercent = stock.totalCost > 0 
-      ? multiply(divide(profit, stock.totalCost), 100)
+    // 收益率计算使用原生运算符保持精度，避免中间四舍五入
+    const profitPercent = stock.totalCost > 0
+      ? (profit / stock.totalCost) * 100
       : 0;
 
     totalCost = add(totalCost, stock.totalCost);
@@ -122,16 +123,17 @@ export function calculateProfitAnalysis(holdings, userPrices) {
 
     stockProfits.push({
       ...stock,
-      currentPrice: roundToDecimals(currentPrice),
+      currentPrice: roundToDecimals(currentPrice),  // 显示时格式化
       currentValue: roundToDecimals(currentValue),
       profit: roundToDecimals(profit),
-      profitPercent: roundToDecimals(profitPercent),
+      profitPercent: profitPercent, // 保持完整精度，显示时再格式化
     });
   }
 
   const totalProfit = subtract(totalValue, totalCost);
+  // 总收益率计算使用原生运算符保持精度
   const totalProfitPercent = totalCost > 0 
-    ? multiply(divide(totalProfit, totalCost), 100)
+    ? (totalProfit / totalCost) * 100
     : 0;
 
   return {

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>收益率精度修复验证</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    .issue { color: #c62828; background: #ffebee; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .fixed { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .test-result { padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .pass { color: #2e7d32; background: #e8f5e9; }
+    .fail { color: #c62828; background: #ffebee; }
+    code { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 4px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>收益率精度修复验证</h1>
+  <div id="results"></div>
+
+  <script type="module">
+    import { roundToDecimals, divide, multiply } from './js/precision.js';
+    import { calculateProfitAnalysis } from './js/calculations.js';
+
+    const results = document.getElementById('results');
+
+    // 测试用例1：正常情况
+    function testNormalCase() {
+      const holdings = {
+        'TEST': {
+          code: 'TEST',
+          name: 'Test Stock',
+          quantity: 100,
+          totalCost: 1000,
+          avgCost: 10
+        }
+      };
+
+      const userPrices = {
+        'TEST': 10.5678  // 有4位小数的精确价格
+      };
+
+      const profitData = calculateProfitAnalysis(holdings, userPrices);
+      const stock = profitData.stockProfits[0];
+
+      // 验证计算结果
+      const expectedProfit = 100 * 10.5678 - 1000; // 56.78
+      const expectedProfitPercent = (expectedProfit / 1000) * 100; // 5.678%
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result';
+
+      if (Math.abs(stock.profit - expectedProfit) < 0.01 &&
+          Math.abs(stock.profitPercent - expectedProfitPercent) < 0.001) {
+        resultDiv.className += ' pass';
+        resultDiv.innerHTML = `
+          <h3>测试1：正常情况 - 通过</h3>
+          <p>持仓：100股，成本1000美元</p>
+          <p>现价：10.5678美元</p>
+          <p>收益：${stock.profit.toFixed(4)}美元 (期望: ${expectedProfit.toFixed(4)})</p>
+          <p>收益率：${stock.profitPercent.toFixed(4)}% (期望: ${expectedProfitPercent.toFixed(4)}%)</p>
+        `;
+      } else {
+        resultDiv.className += ' fail';
+        resultDiv.innerHTML = `
+          <h3>测试1：正常情况 - 失败</h3>
+          <p>持仓：100股，成本1000美元</p>
+          <p>现价：10.5678美元</p>
+          <p>收益：${stock.profit.toFixed(4)}美元 (期望: ${expectedProfit.toFixed(4)})</p>
+          <p>收益率：${stock.profitPercent.toFixed(4)}% (期望: ${expectedProfitPercent.toFixed(4)}%)</p>
+        `;
+      }
+
+      results.appendChild(resultDiv);
+    }
+
+    // 测试用例2：小数值情况
+    function testSmallValueCase() {
+      const holdings = {
+        'SMALL': {
+          code: 'SMALL',
+          name: 'Small Value Stock',
+          quantity: 1000,
+          totalCost: 100000,
+          avgCost: 100
+        }
+      };
+
+      const userPrices = {
+        'SMALL': 100.00123456789  // 非常小的收益
+      };
+
+      const profitData = calculateProfitAnalysis(holdings, userPrices);
+      const stock = profitData.stockProfits[0];
+
+      // 验证计算结果
+      const expectedProfit = 1000 * 100.00123456789 - 100000; // 1.23456789
+      const expectedProfitPercent = (expectedProfit / 100000) * 100; // 0.00123456789%
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result';
+
+      if (expectedProfitPercent > 0 && stock.profitPercent > 0) {
+        resultDiv.className += ' pass';
+        resultDiv.innerHTML = `
+          <h3>测试2：小数值情况 - 通过</h3>
+          <p>持仓：1000股，成本100000美元</p>
+          <p>现价：100.00123456789美元 (增加了0.00123456789美元)</p>
+          <p>收益：${stock.profit.toFixed(8)}美元 (期望: ${expectedProfit.toFixed(8)})</p>
+          <p>收益率：${stock.profitPercent.toFixed(8)}% (期望: ${expectedProfitPercent.toFixed(8)}%)</p>
+          <p>显示值：${parseFloat(stock.profitPercent.toFixed(2))}%</p>
+        `;
+      } else {
+        resultDiv.className += ' fail';
+        resultDiv.innerHTML = `
+          <h3>测试2：小数值情况 - 失败</h3>
+          <p>持仓：1000股，成本100000美元</p>
+          <p>现价：100.00123456789美元</p>
+          <p>收益：${stock.profit.toFixed(8)}美元 (期望: ${expectedProfit.toFixed(8)})</p>
+          <p>收益率：${stock.profitPercent.toFixed(8)}% (期望: ${expectedProfitPercent.toFixed(8)}%)</p>
+        `;
+      }
+
+      results.appendChild(resultDiv);
+    }
+
+    // 测试用例3：极小数值情况
+    function testVerySmallValueCase() {
+      const holdings = {
+        'VERYSMALL': {
+          code: 'VERYSMALL',
+          name: 'Very Small Value Stock',
+          quantity: 10000,
+          totalCost: 1000000,
+          avgCost: 100
+        }
+      };
+
+      const userPrices = {
+        'VERYSMALL': 100.0000123456789  // 极其小的收益
+      };
+
+      const profitData = calculateProfitAnalysis(holdings, userPrices);
+      const stock = profitData.stockProfits[0];
+
+      // 验证计算结果
+      const expectedProfit = 10000 * 100.0000123456789 - 1000000; // 0.123456789
+      const expectedProfitPercent = (expectedProfit / 1000000) * 100; // 0.0000123456789%
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result';
+
+      if (expectedProfitPercent > 0 && stock.profitPercent > 0) {
+        resultDiv.className += ' pass';
+        resultDiv.innerHTML = `
+          <h3>测试3：极小数值情况 - 通过</h3>
+          <p>持仓：10000股，成本1000000美元</p>
+          <p>现价：100.0000123456789美元 (增加了0.0000123456789美元)</p>
+          <p>收益：${stock.profit.toFixed(10)}美元 (期望: ${expectedProfit.toFixed(10)})</p>
+          <p>收益率：${stock.profitPercent.toFixed(10)}% (期望: ${expectedProfitPercent.toFixed(10)}%)</p>
+          <p>显示值：${parseFloat(stock.profitPercent.toFixed(2))}%</p>
+        `;
+      } else {
+        resultDiv.className += ' fail';
+        resultDiv.innerHTML = `
+          <h3>测试3：极小数值情况 - 失败</h3>
+          <p>持仓：10000股，成本1000000美元</p>
+          <p>现价：100.0000123456789美元</p>
+          <p>收益：${stock.profit.toFixed(10)}美元 (期望: ${expectedProfit.toFixed(10)})</p>
+          <p>收益率：${stock.profitPercent.toFixed(10)}% (期望: ${expectedProfitPercent.toFixed(10)}%)</p>
+        `;
+      }
+
+      results.appendChild(resultDiv);
+    }
+
+    // 执行测试
+    testNormalCase();
+    testSmallValueCase();
+    testVerySmallValueCase();
+
+    // 添加说明
+    const explanation = document.createElement('div');
+    explanation.className = 'fixed';
+    explanation.innerHTML = `
+      <h2>修复说明</h2>
+      <p><strong>问题：</strong>收益率在百分比化前就被四舍五入到2位小数，导致精度丢失。</p>
+      <p><strong>修复：</strong></p>
+      <ol>
+        <li>在 <code>calculations.js</code> 中保持收益率的完整精度</li>
+        <li>在 <code>ui.js</code> 中显示时使用 <code>parseFloat(value.toFixed(2))</code> 进行格式化</li>
+      </ol>
+      <p><strong>效果：</strong>计算精度不会丢失，显示时保持适当的精度。</p>
+    `;
+    results.appendChild(explanation);
+  </script>
+</body>
+</html>

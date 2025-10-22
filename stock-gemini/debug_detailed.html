@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>详细调试信息</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    .debug-info { background: #f6f8fa; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .value { font-weight: bold; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 4px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>详细调试信息</h1>
+  <div id="results"></div>
+
+  <script type="module">
+    import { roundToDecimals, divide, multiply } from './js/precision.js';
+    import { calculateHoldings, calculateProfitAnalysis } from './js/calculations.js';
+
+    const results = document.getElementById('results');
+
+    // 模拟您提到的情况：成本价302，现价541
+    function debugYourCase() {
+      const holdings = {
+        'TEST': {
+          code: 'TEST',
+          name: 'Test Stock',
+          quantity: 1,
+          totalCost: 302,
+          avgCost: 302
+        }
+      };
+
+      const userPrices = {
+        'TEST': 541
+      };
+
+      // 手动计算正确结果
+      const currentValue = 1 * 541; // 541
+      const profit = currentValue - 302; // 239
+      const correctProfitPercent = (profit / 302) * 100; // 79.13907284768212%
+
+      // 使用现有函数计算
+      const profitData = calculateProfitAnalysis(holdings, userPrices);
+      const stock = profitData.stockProfits[0];
+
+      const resultDiv = document.createElement('div');
+
+      // 显示详细调试信息
+      resultDiv.innerHTML = `
+        <h2>详细调试信息：成本价302，现价541</h2>
+        <div class="debug-info">
+          <h3>输入数据</h3>
+          <p>持仓数量: <span class="value">${holdings.TEST.quantity}</span></p>
+          <p>总成本: <span class="value">${holdings.TEST.totalCost}</span></p>
+          <p>现价: <span class="value">${userPrices.TEST}</span></p>
+        </div>
+
+        <div class="debug-info">
+          <h3>计算过程</h3>
+          <p>市值: <span class="value">${currentValue}</span></p>
+          <p>收益: <span class="value">${profit}</span></p>
+          <p>正确收益率: <span class="value">${correctProfitPercent}%</span></p>
+        </div>
+
+        <div class="debug-info">
+          <h3>系统计算结果</h3>
+          <p>系统计算的收益率原始值: <span class="value">${stock.profitPercent}</span></p>
+          <p>系统计算的收益率原始值（保留20位小数）: <span class="value">${stock.profitPercent.toFixed(20)}</span></p>
+          <p>使用 toFixed(2) 后: <span class="value">${stock.profitPercent.toFixed(2)}</span></p>
+          <p>使用 parseFloat(toFixed(2)) 后: <span class="value">${parseFloat(stock.profitPercent.toFixed(2))}</span></p>
+        </div>
+
+        <div class="debug-info">
+          <h3>问题分析</h3>
+          <p>正确结果应该是: <span class="value">79.14%</span></p>
+          <p>当前显示结果是: <span class="value">${parseFloat(stock.profitPercent.toFixed(2))}%</span></p>
+          <p>是否一致: <span class="value">${Math.abs(parseFloat(stock.profitPercent.toFixed(2)) - 79.14) < 0.01 ? '是' : '否'}</span></p>
+        </div>
+      `;
+
+      results.appendChild(resultDiv);
+    }
+
+    // 执行调试
+    debugYourCase();
+  </script>
+</body>
+</html>

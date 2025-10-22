@@ -40,28 +40,28 @@ export function subtract(a, b) {
 
 /**
  * 精确乘法
- * @param {number} a 
- * @param {number} b 
+ * @param {number} a
+ * @param {number} b
  * @returns {number}
  */
 export function multiply(a, b) {
-  const aFixed = roundToDecimals(a);
-  const bFixed = roundToDecimals(b);
-  // 使用100倍数进行整数计算
-  return roundToDecimals((aFixed * 100 * bFixed * 100) / 10000);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return 0;
+  // 在计算过程中保持更高精度，只在最终结果四舍五入到2位小数
+  const result = a * b;
+  return roundToDecimals(result);
 }
 
 /**
  * 精确除法
- * @param {number} a 
- * @param {number} b 
+ * @param {number} a
+ * @param {number} b
  * @returns {number}
  */
 export function divide(a, b) {
-  if (b === 0) return 0;
-  const aFixed = roundToDecimals(a);
-  const bFixed = roundToDecimals(b);
-  return roundToDecimals((aFixed * 100) / (bFixed * 100) * 100 / 100);
+  if (b === 0 || !Number.isFinite(a) || !Number.isFinite(b)) return 0;
+  // 在计算过程中保持更高精度，只在最终结果四舍五入到2位小数
+  const result = a / b;
+  return roundToDecimals(result);
 }
 
 /**

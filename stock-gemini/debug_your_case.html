@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>收益率精度问题诊断</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    .issue { color: #c62828; background: #ffebee; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .fixed { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .test-result { padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+    .pass { color: #2e7d32; background: #e8f5e9; }
+    .fail { color: #c62828; background: #ffebee; }
+    code { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 4px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>收益率精度问题诊断</h1>
+  <div id="results"></div>
+
+  <script type="module">
+    import { roundToDecimals, divide, multiply } from './js/precision.js';
+    import { calculateHoldings, calculateProfitAnalysis } from './js/calculations.js';
+
+    const results = document.getElementById('results');
+
+    // 模拟您提到的情况：成本价302，现价541
+    function testYourCase() {
+      const holdings = {
+        'TEST': {
+          code: 'TEST',
+          name: 'Test Stock',
+          quantity: 1,
+          totalCost: 302,
+          avgCost: 302
+        }
+      };
+
+      const userPrices = {
+        'TEST': 541
+      };
+
+      // 手动计算正确结果
+      const currentValue = 1 * 541; // 541
+      const profit = currentValue - 302; // 239
+      const correctProfitPercent = (profit / 302) * 100; // 79.13907284768212%
+
+      // 使用现有函数计算
+      const profitData = calculateProfitAnalysis(holdings, userPrices);
+      const stock = profitData.stockProfits[0];
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result';
+
+      // 显示结果
+      resultDiv.innerHTML = `
+        <h2>您的情况测试：成本价302，现价541</h2>
+        <div class="issue">
+          <h3>计算过程</h3>
+          <p>持仓：1股</p>
+          <p>成本：302美元</p>
+          <p>现价：541美元</p>
+          <p>市值：${currentValue}美元</p>
+          <p>收益：${profit}美元</p>
+        </div>
+
+        <div class="fixed">
+          <h3>收益率计算</h3>
+          <p>正确收益率 = (239 / 302) * 100% = <strong>${correctProfitPercent}%</strong></p>
+          <p>正确收益率（保留2位小数） = <strong>${correctProfitPercent.toFixed(2)}%</strong></p>
+          <p>正确收益率（保留6位小数） = <strong>${correctProfitPercent.toFixed(6)}%</strong></p>
+        </div>
+
+        <div class="issue">
+          <h3>当前系统计算结果</h3>
+          <p>系统计算的收益率 = <strong>${stock.profitPercent}%</strong></p>
+          <p>系统计算的收益率（保留6位小数） = <strong>${stock.profitPercent.toFixed(6)}%</strong></p>
+        </div>
+
+        <div class="${Math.abs(stock.profitPercent - correctProfitPercent) < 0.000001 ? 'pass' : 'fail'}">
+          <h3>比较结果</h3>
+          <p>计算精度是否正确：<strong>${Math.abs(stock.profitPercent - correctProfitPercent) < 0.000001 ? '是' : '否'}</strong></p>
+          <p>显示时四舍五入是否正确：<strong>${Math.abs(stock.profitPercent.toFixed(2) - correctProfitPercent.toFixed(2)) < 0.01 ? '是' : '否'}</strong></p>
+          <p>当前显示结果：${stock.profitPercent.toFixed(2)}%</p>
+          <p>正确显示结果：${correctProfitPercent.toFixed(2)}%</p>
+        </div>
+      `;
+
+      results.appendChild(resultDiv);
+    }
+
+    // 执行测试
+    testYourCase();
+  </script>
+</body>
+</html>
