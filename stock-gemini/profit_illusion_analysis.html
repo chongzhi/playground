@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>盈利假象分析 - 加权平均成本法的陷阱</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+        }
+        h2 {
+            color: #1976D2;
+            border-bottom: 3px solid #1976D2;
+            padding-bottom: 10px;
+        }
+        .transaction {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .profit {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .loss {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 8px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+        .warning-box {
+            background: #FFEBEE;
+            border: 3px solid #d32f2f;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success-box {
+            background: #E8F5E9;
+            border: 3px solid #2e7d32;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .info-box {
+            background: #E3F2FD;
+            border: 3px solid #1976D2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1976D2;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .calculation {
+            font-family: 'Courier New', monospace;
+            background: #263238;
+            color: #4CAF50;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .big-number {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 你发现了加权平均成本法的致命缺陷！</h1>
+
+    <div class="section">
+        <h2>📋 交易记录</h2>
+        <table>
+            <tr>
+                <th>操作</th>
+                <th>数量</th>
+                <th>价格</th>
+                <th>金额</th>
+                <th>系统显示成本</th>
+            </tr>
+            <tr>
+                <td>1️⃣ 买入</td>
+                <td>400股</td>
+                <td>$24.58</td>
+                <td class="loss">-$9,832.00</td>
+                <td>$24.58</td>
+            </tr>
+            <tr>
+                <td>2️⃣ 买入</td>
+                <td>470股</td>
+                <td>$21.24</td>
+                <td class="loss">-$9,982.80</td>
+                <td>$22.78 (平均)</td>
+            </tr>
+            <tr>
+                <td>3️⃣ 卖出</td>
+                <td>470股</td>
+                <td>$20.50</td>
+                <td class="profit">+$9,635.00</td>
+                <td>$22.77 (剩余)</td>
+            </tr>
+            <tr>
+                <td>4️⃣ 卖出（假设）</td>
+                <td>400股</td>
+                <td>$24.00</td>
+                <td class="profit">+$9,600.00</td>
+                <td>清仓</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>💰 系统显示的盈亏（加权平均法）</h2>
+        
+        <div class="transaction">
+            <h3>第3步：卖出 470股 @ $20.50</h3>
+            <p>系统成本：$22.78</p>
+            <p>卖出价格：$20.50</p>
+            <p>单股盈亏：$20.50 - $22.78 = <span class="loss">-$2.28</span></p>
+            <p>总盈亏：-$2.28 × 470 = <span class="loss">-$1,071.60</span></p>
+        </div>
+
+        <div class="transaction">
+            <h3>第4步：卖出 400股 @ $24.00</h3>
+            <p>系统成本：$22.77</p>
+            <p>卖出价格：$24.00</p>
+            <p>单股盈亏：$24.00 - $22.77 = <span class="profit">+$1.23</span></p>
+            <p>总盈亏：$1.23 × 400 = <span class="profit">+$492.00</span></p>
+        </div>
+
+        <div class="info-box">
+            <h3>📊 系统计算的总盈亏</h3>
+            <div class="calculation">
+                第3步亏损: -$1,071.60<br>
+                第4步盈利: +$492.00<br>
+                ========================<br>
+                总盈亏: -$579.60
+            </div>
+            <p style="text-align: center; color: #d32f2f; font-size: 1.3em; font-weight: bold;">
+                系统显示：亏损 $579.60
+            </p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🧮 真实现金流计算</h2>
+        
+        <div class="calculation">
+            <strong>总支出（买入）：</strong><br>
+            400股 × $24.58 = $9,832.00<br>
+            470股 × $21.24 = $9,982.80<br>
+            ========================<br>
+            总支出: $19,814.80<br>
+            <br>
+            <strong>总收入（卖出）：</strong><br>
+            470股 × $20.50 = $9,635.00<br>
+            400股 × $24.00 = $9,600.00<br>
+            ========================<br>
+            总收入: $19,235.00<br>
+            <br>
+            <strong>净盈亏：</strong><br>
+            $19,235.00 - $19,814.80 = <span class="loss">-$579.80</span>
+        </div>
+
+        <div class="success-box">
+            <h3>✅ 验证：两种算法结果一致！</h3>
+            <p>系统算法（加权平均）：亏损 $579.60</p>
+            <p>现金流算法（实际）：亏损 $579.80</p>
+            <p style="color: #666; font-size: 0.9em;">（差异 $0.20 是四舍五入误差）</p>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <h2>⚠️ 你的问题：盈利假象！</h2>
+        <div style="font-size: 1.2em; line-height: 1.8;">
+            <p><strong>你看到的：</strong></p>
+            <p>剩余持仓成本 $22.77，如果在 $24 卖出：</p>
+            <div class="big-number profit">
+                $24.00 > $22.77 ✅ 看起来赚钱！
+            </div>
+
+            <p><strong>实际情况：</strong></p>
+            <p>整体现金流计算：</p>
+            <div class="big-number loss">
+                -$579.80 ❌ 实际亏钱！
+            </div>
+
+            <p style="margin-top: 30px;"><strong>为什么会有假象？</strong></p>
+            <ul style="font-size: 1em;">
+                <li>第3步卖出时，价格 $20.50 < 成本 $22.78，<strong>已经亏损了 $1,071.60</strong></li>
+                <li>这个亏损被"隐藏"在了剩余持仓的成本里</li>
+                <li>系统把成本从 $22.78 降到了 $22.77</li>
+                <li>让你以为只要卖价 > $22.77 就是赚钱</li>
+                <li><strong>但实际上，你需要卖价 > $24.45 才能覆盖之前的亏损！</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🎯 真实盈亏平衡点分析</h2>
+        
+        <div class="info-box">
+            <h3>如果要整体不亏钱，第4步需要卖多少钱？</h3>
+            <div class="calculation">
+                前3步的净支出: $19,814.80 - $9,635.00 = $10,179.80<br>
+                剩余数量: 400股<br>
+                盈亏平衡点: $10,179.80 ÷ 400 = <span class="highlight">$25.45</span>
+            </div>
+            <p style="font-size: 1.3em; color: #d32f2f; font-weight: bold;">
+                你需要在 <span class="highlight">$25.45</span> 以上卖出才不亏！
+            </p>
+            <p style="color: #666;">
+                而不是系统显示的 $22.77！
+            </p>
+        </div>
+
+        <table style="margin-top: 20px;">
+            <tr>
+                <th>卖出价格</th>
+                <th>系统显示盈亏</th>
+                <th>实际盈亏</th>
+                <th>是否被误导</th>
+            </tr>
+            <tr>
+                <td>$22.00</td>
+                <td class="loss">-$308</td>
+                <td class="loss">-$879.80</td>
+                <td>❌ 亏损被低估</td>
+            </tr>
+            <tr>
+                <td>$24.00</td>
+                <td class="profit">+$492</td>
+                <td class="loss">-$579.80</td>
+                <td>🚨 以为赚，实际亏！</td>
+            </tr>
+            <tr>
+                <td>$25.45</td>
+                <td class="profit">+$1,072</td>
+                <td style="color: #666;">$0</td>
+                <td>⚠️ 以为赚，实际持平</td>
+            </tr>
+            <tr>
+                <td>$26.00</td>
+                <td class="profit">+$1,292</td>
+                <td class="profit">+$220</td>
+                <td>✅ 确实赚钱</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>💡 根本问题：加权平均法的局限性</h2>
+        
+        <div class="warning-box" style="border-color: #FF9800; background: #FFF3E0;">
+            <h3>为什么会误导投资者？</h3>
+            <ol style="font-size: 1.1em; line-height: 1.8;">
+                <li><strong>隐藏已实现亏损</strong>：第3步在 $20.50 卖出时已经亏损，但这个亏损被分摊到剩余持仓中</li>
+                <li><strong>成本被人为降低</strong>：剩余400股的真实成本被从应有的水平降低到 $22.77</li>
+                <li><strong>无法追踪批次</strong>：无法知道剩余的股票实际是哪一批买入的</li>
+                <li><strong>决策依据失真</strong>：投资者会基于错误的成本做出错误的决策</li>
+            </ol>
+
+            <h3 style="margin-top: 30px;">如何避免？</h3>
+            <ul style="font-size: 1.1em; line-height: 1.8;">
+                <li>✅ 使用 <strong>先进先出（FIFO）</strong>或<strong>后进先出（LIFO）</strong></li>
+                <li>✅ 分批次管理持仓，记录每批的真实成本</li>
+                <li>✅ 单独记录<strong>已实现盈亏</strong>和<strong>未实现盈亏</strong></li>
+                <li>✅ 提供<strong>整体盈亏视图</strong>，包含所有历史交易</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="success-box">
+        <h2>🎉 你的洞察非常精准！</h2>
+        <p style="font-size: 1.2em; line-height: 1.8;">
+            你发现了一个<strong>很多投资者都会掉进去的陷阱</strong>：<br><br>
+            <strong>"系统显示我的成本是 $22.77，我在 $24 卖应该是赚钱啊？怎么算总账反而亏了？"</strong><br><br>
+            这正是<strong>加权平均成本法</strong>的最大问题——它让已实现的亏损"消失"在了剩余持仓的成本计算中，
+            给投资者造成盈利假象。<br><br>
+            <span style="color: #d32f2f; font-weight: bold;">
+                建议：修改系统，使用 FIFO/LIFO，并且单独显示已实现盈亏！
+            </span>
+        </p>
+    </div>
+
+</body>
+</html>
+

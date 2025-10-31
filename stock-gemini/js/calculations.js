@@ -4,12 +4,13 @@
 import { roundToDecimals, add, subtract, multiply, divide } from './precision.js';
 
 /**
- * 根据交易记录计算当前持仓（加权平均成本法）
+ * 根据交易记录计算当前持仓（FIFO - 先进先出法）
  * @param {Array<{id:string, code:string, name:string, type:'buy'|'sell', price:number, quantity:number, date:string}>} transactions 
- * @returns {Record<string, {code:string, name:string, quantity:number, totalCost:number, avgCost:number}>}
+ * @returns {Record<string, {code:string, name:string, quantity:number, totalCost:number, avgCost:number, lots:Array}>}
  */
 export function calculateHoldings(transactions) {
-  const holdings = {};
+  // 使用批次管理，每个股票维护一个买入批次队列
+  const holdingsWithLots = {};
   const sortedTransactions = [...transactions].sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
@@ -18,46 +19,72 @@ export function calculateHoldings(transactions) {
     // 确保交易价格精确到2位小数
     const normalizedPrice = roundToDecimals(tx.price);
     
-    if (!holdings[tx.code]) {
-      holdings[tx.code] = {
+    if (!holdingsWithLots[tx.code]) {
+      holdingsWithLots[tx.code] = {
         code: tx.code,
         name: tx.name,
-        quantity: 0,
-        totalCost: 0,
-        avgCost: 0,
+        lots: [], // 买入批次队列：[{price, quantity, date}, ...]
       };
     }
-    const stock = holdings[tx.code];
+    const stock = holdingsWithLots[tx.code];
 
     if (tx.type === 'buy') {
-      // 使用精确计算：总成本 = 原成本 + 价格 × 数量
-      const buyCost = multiply(normalizedPrice, tx.quantity);
-      stock.totalCost = add(stock.totalCost, buyCost);
-      stock.quantity += tx.quantity;
+      // 买入：添加新批次到队列末尾
+      stock.lots.push({
+        price: normalizedPrice,
+        quantity: tx.quantity,
+        date: tx.date,
+      });
     } else {
-      if (stock.quantity >= tx.quantity) {
-        // 使用精确计算：卖出成本 = (总成本 / 数量) × 卖出数量
-        const avgCost = divide(stock.totalCost, stock.quantity);
-        const costOfSoldShares = multiply(avgCost, tx.quantity);
-        stock.totalCost = subtract(stock.totalCost, costOfSoldShares);
-        stock.quantity -= tx.quantity;
-      } else {
+      // 卖出：按 FIFO 从队列头部开始扣除
+      let remainingToSell = tx.quantity;
+      
+      while (remainingToSell > 0 && stock.lots.length > 0) {
+        const firstLot = stock.lots[0];
+        
+        if (firstLot.quantity <= remainingToSell) {
+          // 这批全部卖出
+          remainingToSell -= firstLot.quantity;
+          stock.lots.shift(); // 移除第一批
+        } else {
+          // 这批部分卖出
+          firstLot.quantity -= remainingToSell;
+          remainingToSell = 0;
+        }
+      }
+      
+      if (remainingToSell > 0) {
         console.warn(
-          `Attempted to sell ${tx.quantity} shares of ${tx.code}, but only ${stock.quantity} available.`
+          `Attempted to sell ${tx.quantity} shares of ${tx.code}, but only ${tx.quantity - remainingToSell} available.`
         );
-        continue;
       }
     }
-
-    // 计算平均成本，确保精度
-    stock.avgCost = stock.quantity > 0 ? divide(stock.totalCost, stock.quantity) : 0;
-    stock.totalCost = roundToDecimals(stock.totalCost);
-    stock.avgCost = roundToDecimals(stock.avgCost);
   }
 
-  return Object.fromEntries(
-    Object.entries(holdings).filter(([_, s]) => s.quantity > 0)
-  );
+  // 转换为最终格式：计算总数量、总成本、平均成本
+  const holdings = {};
+  for (const [code, stock] of Object.entries(holdingsWithLots)) {
+    let totalQuantity = 0;
+    let totalCost = 0;
+    
+    for (const lot of stock.lots) {
+      totalQuantity += lot.quantity;
+      totalCost = add(totalCost, multiply(lot.price, lot.quantity));
+    }
+    
+    if (totalQuantity > 0) {
+      holdings[code] = {
+        code: stock.code,
+        name: stock.name,
+        quantity: totalQuantity,
+        totalCost: roundToDecimals(totalCost),
+        avgCost: roundToDecimals(divide(totalCost, totalQuantity)),
+        lots: stock.lots, // 保留批次信息供调试或高级功能使用
+      };
+    }
+  }
+
+  return holdings;
 }
 
 /**

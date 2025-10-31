@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>成本计算方法对比</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .method {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .method h2 {
+            color: #fff;
+            padding: 10px 15px;
+            margin: -25px -25px 20px -25px;
+            border-radius: 8px 8px 0 0;
+        }
+        .current-method h2 {
+            background: #2196F3;
+        }
+        .fifo-method h2 {
+            background: #4CAF50;
+        }
+        .user-expectation h2 {
+            background: #FF9800;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #ddd;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 8px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+        .result {
+            font-size: 1.3em;
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 15px;
+            background: #ffebee;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #607D8B;
+            color: white;
+        }
+        .comparison {
+            background: #E3F2FD;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 你的理解是对的！让我解释为什么...</h1>
+
+    <div class="warning">
+        <h3>⚠️ 关键问题</h3>
+        <p><strong>你的逻辑：</strong></p>
+        <ul>
+            <li>我先买了 400股 @ $24.58</li>
+            <li>又买了 470股 @ $21.24（价格更低）</li>
+            <li>然后卖了 470股</li>
+            <li><strong>按常理，我应该卖的是那批 $21.24 的股票</strong></li>
+            <li><strong>所以剩下的 400股 应该还是 $24.58 的成本</strong></li>
+        </ul>
+        <p style="color: #d32f2f; font-weight: bold; font-size: 1.1em;">
+            但系统显示的是 $22.77，这明显不对！
+        </p>
+    </div>
+
+    <div class="method current-method">
+        <h2>❌ 当前系统：加权平均成本法（Weighted Average Cost）</h2>
+        
+        <div class="step">
+            <h3>步骤1: 买入 400股 @ $24.58</h3>
+            <p>持仓：400股 @ $24.58</p>
+        </div>
+
+        <div class="step">
+            <h3>步骤2: 买入 470股 @ $21.24</h3>
+            <p>总成本 = (400 × $24.58) + (470 × $21.24) = $9,832 + $9,982.8 = <span class="highlight">$19,814.8</span></p>
+            <p>总数量 = 400 + 470 = <span class="highlight">870股</span></p>
+            <p>平均成本 = $19,814.8 ÷ 870 = <span class="highlight">$22.78</span></p>
+            <p style="color: #f44336;"><strong>⚠️ 注意：此时两批股票"混合"了，不再区分批次！</strong></p>
+        </div>
+
+        <div class="step">
+            <h3>步骤3: 卖出 470股</h3>
+            <p>按 $22.78 的成本计算卖出：</p>
+            <p>扣除成本 = 470 × $22.78 = <span class="highlight">$10,706.6</span></p>
+            <p>剩余成本 = $19,814.8 - $10,706.6 = <span class="highlight">$9,108.2</span></p>
+            <p>剩余数量 = 870 - 470 = <span class="highlight">400股</span></p>
+            <p>剩余平均成本 = $9,108.2 ÷ 400 = <span class="highlight">$22.77</span></p>
+        </div>
+
+        <div class="result">
+            📊 系统显示：400股 @ $22.77
+        </div>
+
+        <div class="warning">
+            <strong>问题：</strong>这个方法不符合直觉！
+            <ul>
+                <li>把所有股票混在一起算平均成本</li>
+                <li>卖出时不管你实际想卖哪一批</li>
+                <li><strong>导致：剩余成本 $22.77 既不是 $24.58，也不是 $21.24</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="method fifo-method">
+        <h2>✅ 更合理的方法：先进先出法（FIFO）</h2>
+        
+        <div class="step">
+            <h3>持仓明细（分批次记录）</h3>
+            <table>
+                <tr>
+                    <th>批次</th>
+                    <th>数量</th>
+                    <th>成本价</th>
+                    <th>总成本</th>
+                </tr>
+                <tr>
+                    <td>批次1</td>
+                    <td>400股</td>
+                    <td>$24.58</td>
+                    <td>$9,832.00</td>
+                </tr>
+                <tr>
+                    <td>批次2</td>
+                    <td>470股</td>
+                    <td>$21.24</td>
+                    <td>$9,982.80</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <h3>卖出 470股（按FIFO先卖批次1）</h3>
+            <p><strong>第一步：</strong>先卖完批次1的 400股 @ $24.58</p>
+            <p>扣除成本 = 400 × $24.58 = <span class="highlight">$9,832</span></p>
+            
+            <p><strong>第二步：</strong>再卖批次2的 70股 @ $21.24</p>
+            <p>扣除成本 = 70 × $21.24 = <span class="highlight">$1,486.8</span></p>
+            
+            <p><strong>剩余：</strong>批次2还剩 470 - 70 = <span class="highlight">400股 @ $21.24</span></p>
+        </div>
+
+        <div class="result" style="background: #E8F5E9; color: #2e7d32;">
+            📊 FIFO结果：400股 @ $21.24
+        </div>
+    </div>
+
+    <div class="method user-expectation">
+        <h2>💡 你期望的方法：后进先出法（LIFO）或指定批次</h2>
+        
+        <div class="step">
+            <h3>逻辑：我卖出的就是我刚买入的那470股</h3>
+            <p>批次1：400股 @ $24.58 → <strong>保留</strong></p>
+            <p>批次2：470股 @ $21.24 → <strong>全部卖出</strong></p>
+        </div>
+
+        <div class="result" style="background: #FFF3E0; color: #e65100;">
+            📊 你期望的结果：400股 @ $24.58
+        </div>
+    </div>
+
+    <div class="comparison">
+        <h2>📊 三种方法对比</h2>
+        <table>
+            <tr>
+                <th>方法</th>
+                <th>剩余持仓</th>
+                <th>剩余成本价</th>
+                <th>是否符合直觉</th>
+            </tr>
+            <tr style="background: #FFEBEE;">
+                <td><strong>加权平均法</strong>（当前系统）</td>
+                <td>400股</td>
+                <td>$22.77</td>
+                <td>❌ 不符合</td>
+            </tr>
+            <tr style="background: #E8F5E9;">
+                <td><strong>先进先出（FIFO）</strong></td>
+                <td>400股</td>
+                <td>$21.24</td>
+                <td>✅ 相对合理</td>
+            </tr>
+            <tr style="background: #FFF3E0;">
+                <td><strong>后进先出（LIFO）</strong></td>
+                <td>400股</td>
+                <td>$24.58</td>
+                <td>✅ 最符合你的预期</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="warning">
+        <h3>🎯 结论</h3>
+        <p><strong>你的理解是对的！</strong></p>
+        <ul>
+            <li>✅ 如果按<strong>后进先出（LIFO）</strong>：剩余成本应该是 <span class="highlight">$24.58</span></li>
+            <li>✅ 如果按<strong>先进先出（FIFO）</strong>：剩余成本应该是 <span class="highlight">$21.24</span></li>
+            <li>❌ 但系统用的是<strong>加权平均法</strong>：显示 <span class="highlight">$22.77</span></li>
+        </ul>
+        
+        <p style="margin-top: 15px;"><strong>为什么系统用加权平均法？</strong></p>
+        <ul>
+            <li>代码实现简单，不需要追踪每个批次</li>
+            <li>某些会计准则允许使用此方法</li>
+            <li>但<strong>不符合个人投资者的直觉</strong></li>
+        </ul>
+
+        <p style="margin-top: 15px; color: #d32f2f; font-weight: bold;">
+            建议：修改系统，支持 FIFO 或让用户选择成本计算方法！
+        </p>
+    </div>
+</body>
+</html>
+

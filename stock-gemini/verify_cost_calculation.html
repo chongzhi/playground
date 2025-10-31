@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>验证平均成本价计算</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            background: #f9f9f9;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            font-weight: bold;
+        }
+        .error {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .success {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 平均成本价计算验证</h1>
+    <div id="result"></div>
+
+    <script type="module">
+        import { calculateHoldings } from './js/calculations.js';
+        import { roundToDecimals, divide, multiply, add, subtract } from './js/precision.js';
+
+        // 用户的交易场景
+        const transactions = [
+            {
+                id: '1',
+                code: 'A',
+                name: 'A股票',
+                type: 'buy',
+                price: 24.58,
+                quantity: 400,
+                date: '2025-01-01'
+            },
+            {
+                id: '2',
+                code: 'A',
+                name: 'A股票',
+                type: 'buy',
+                price: 21.24,
+                quantity: 470,
+                date: '2025-01-02'
+            },
+            {
+                id: '3',
+                code: 'A',
+                name: 'A股票',
+                type: 'sell',
+                price: 20.5,
+                quantity: 470,
+                date: '2025-01-03'
+            }
+        ];
+
+        // 手动逐步计算，模拟代码逻辑
+        function manualCalculation() {
+            let html = '<div class="result">';
+            html += '<h2>📊 手动逐步计算（模拟代码逻辑）</h2>';
+
+            let quantity = 0;
+            let totalCost = 0;
+            let avgCost = 0;
+
+            // 第一步：买入400股 @ 24.58
+            html += '<div class="step">';
+            html += '<h3>步骤1: 买入 400股 @ $24.58</h3>';
+            const buyCost1 = multiply(24.58, 400);
+            totalCost = add(totalCost, buyCost1);
+            quantity += 400;
+            avgCost = quantity > 0 ? divide(totalCost, quantity) : 0;
+            
+            html += `<p>买入成本 = 24.58 × 400 = <span class="highlight">${buyCost1}</span></p>`;
+            html += `<p>总成本 = 0 + ${buyCost1} = <span class="highlight">${totalCost}</span></p>`;
+            html += `<p>持仓数量 = <span class="highlight">${quantity}</span>股</p>`;
+            html += `<p>平均成本 = ${totalCost} ÷ ${quantity} = <span class="highlight">$${avgCost}</span></p>`;
+            html += '</div>';
+
+            // 第二步：买入470股 @ 21.24
+            html += '<div class="step">';
+            html += '<h3>步骤2: 买入 470股 @ $21.24</h3>';
+            const buyCost2 = multiply(21.24, 470);
+            const oldTotalCost = totalCost;
+            totalCost = add(totalCost, buyCost2);
+            const oldQuantity = quantity;
+            quantity += 470;
+            avgCost = quantity > 0 ? divide(totalCost, quantity) : 0;
+            
+            html += `<p>买入成本 = 21.24 × 470 = <span class="highlight">${buyCost2}</span></p>`;
+            html += `<p>总成本 = ${oldTotalCost} + ${buyCost2} = <span class="highlight">${totalCost}</span></p>`;
+            html += `<p>持仓数量 = ${oldQuantity} + 470 = <span class="highlight">${quantity}</span>股</p>`;
+            html += `<p>平均成本 = ${totalCost} ÷ ${quantity} = <span class="highlight">$${avgCost}</span></p>`;
+            html += '</div>';
+
+            // 第三步：卖出470股 @ 20.5
+            html += '<div class="step">';
+            html += '<h3>步骤3: 卖出 470股 @ $20.5</h3>';
+            const avgCostBeforeSell = divide(totalCost, quantity);
+            const costOfSoldShares = multiply(avgCostBeforeSell, 470);
+            const oldTotalCost2 = totalCost;
+            totalCost = subtract(totalCost, costOfSoldShares);
+            const oldQuantity2 = quantity;
+            quantity -= 470;
+            avgCost = quantity > 0 ? divide(totalCost, quantity) : 0;
+            
+            html += `<p>当前平均成本 = ${oldTotalCost2} ÷ ${oldQuantity2} = <span class="highlight">$${avgCostBeforeSell}</span></p>`;
+            html += `<p>卖出部分的成本 = ${avgCostBeforeSell} × 470 = <span class="highlight">${costOfSoldShares}</span></p>`;
+            html += `<p>剩余总成本 = ${oldTotalCost2} - ${costOfSoldShares} = <span class="highlight">${totalCost}</span></p>`;
+            html += `<p>剩余数量 = ${oldQuantity2} - 470 = <span class="highlight">${quantity}</span>股</p>`;
+            html += `<p>剩余平均成本 = ${totalCost} ÷ ${quantity} = <span class="highlight">$${avgCost}</span></p>`;
+            html += '</div>';
+
+            html += '<div class="step" style="border-left-color: #2196F3;">';
+            html += '<h3>🎯 最终结果</h3>';
+            html += `<p style="font-size: 1.2em;">剩余持仓: <span class="highlight">${quantity}股</span></p>`;
+            html += `<p style="font-size: 1.2em;">平均成本: <span class="highlight">$${avgCost}</span></p>`;
+            
+            // 判断是否合理
+            if (avgCost === 22.77) {
+                html += `<p class="success">✓ 与用户看到的 $22.77 一致</p>`;
+            } else {
+                html += `<p class="error">✗ 与用户看到的 $22.77 不一致</p>`;
+                html += `<p>差异: ${Math.abs(avgCost - 22.77).toFixed(4)}</p>`;
+            }
+            html += '</div>';
+
+            html += '</div>';
+            return html;
+        }
+
+        // 使用实际代码计算
+        function codeCalculation() {
+            const holdings = calculateHoldings(transactions);
+            let html = '<div class="result">';
+            html += '<h2>💻 实际代码计算结果</h2>';
+            
+            if (holdings['A']) {
+                const stock = holdings['A'];
+                html += '<table>';
+                html += '<tr><th>字段</th><th>值</th></tr>';
+                html += `<tr><td>股票代码</td><td>${stock.code}</td></tr>`;
+                html += `<tr><td>股票名称</td><td>${stock.name}</td></tr>`;
+                html += `<tr><td>持仓数量</td><td>${stock.quantity}股</td></tr>`;
+                html += `<tr><td>总成本</td><td>$${stock.totalCost}</td></tr>`;
+                html += `<tr><td>平均成本</td><td>$${stock.avgCost}</td></tr>`;
+                html += '</table>';
+                
+                if (stock.avgCost === 22.77) {
+                    html += `<p class="success">✓ 计算结果为 $22.77，与用户看到的一致</p>`;
+                } else {
+                    html += `<p class="error">✗ 计算结果为 $${stock.avgCost}，与用户看到的 $22.77 不一致</p>`;
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // 理论分析
+        function theoreticalAnalysis() {
+            let html = '<div class="result">';
+            html += '<h2>📐 理论分析：加权平均成本法</h2>';
+            
+            html += '<div class="step">';
+            html += '<h3>原理说明</h3>';
+            html += '<p>加权平均成本法的特点：</p>';
+            html += '<ul>';
+            html += '<li>所有买入的股票混合在一起，不区分批次</li>';
+            html += '<li>每次买入后重新计算平均成本</li>';
+            html += '<li><strong>卖出时，按当前平均成本扣除相应份额的成本</strong></li>';
+            html += '<li>卖出后，剩余股票的平均成本应保持不变（理论上）</li>';
+            html += '</ul>';
+            html += '</div>';
+
+            html += '<div class="step">';
+            html += '<h3>精度分析</h3>';
+            html += '<p>让我们用更高精度计算：</p>';
+            
+            // 高精度计算
+            const cost1 = 24.58 * 400; // 9832
+            const cost2 = 21.24 * 470; // 9982.8
+            const totalCostRaw = cost1 + cost2; // 19814.8
+            const avgCostRaw = totalCostRaw / 870; // 22.775632183908046
+            
+            html += `<p>第一次买入成本: 24.58 × 400 = <span class="highlight">${cost1}</span></p>`;
+            html += `<p>第二次买入成本: 21.24 × 470 = <span class="highlight">${cost2}</span></p>`;
+            html += `<p>总成本: ${cost1} + ${cost2} = <span class="highlight">${totalCostRaw}</span></p>`;
+            html += `<p>平均成本（原始）: ${totalCostRaw} ÷ 870 = <span class="highlight">${avgCostRaw}</span></p>`;
+            html += `<p>平均成本（2位小数）: <span class="highlight">${avgCostRaw.toFixed(2)}</span></p>`;
+            
+            // 卖出计算 - 使用四舍五入后的值
+            const avgCostRounded = Math.round(avgCostRaw * 100) / 100; // 22.78
+            const soldCost1 = avgCostRounded * 470; // 10706.6
+            const remainCost1 = totalCostRaw - soldCost1; // 9108.2
+            const remainAvg1 = remainCost1 / 400; // 22.7705
+            
+            html += '<br><p><strong>方案A：卖出时使用四舍五入后的平均成本</strong></p>';
+            html += `<p>四舍五入后的平均成本: <span class="highlight">${avgCostRounded}</span></p>`;
+            html += `<p>卖出成本: ${avgCostRounded} × 470 = <span class="highlight">${soldCost1}</span></p>`;
+            html += `<p>剩余成本: ${totalCostRaw} - ${soldCost1} = <span class="highlight">${remainCost1}</span></p>`;
+            html += `<p>剩余平均成本: ${remainCost1} ÷ 400 = <span class="highlight">${remainAvg1}</span></p>`;
+            html += `<p>四舍五入: <span class="highlight">${remainAvg1.toFixed(2)}</span> ✓ 得到 $22.77</p>`;
+            
+            // 使用原始精度
+            const soldCost2 = avgCostRaw * 470; // 10704.547126436781
+            const remainCost2 = totalCostRaw - soldCost2; // 9110.252873563218
+            const remainAvg2 = remainCost2 / 400; // 22.775632183908045
+            
+            html += '<br><p><strong>方案B：卖出时使用原始精度</strong></p>';
+            html += `<p>卖出成本: ${avgCostRaw} × 470 = <span class="highlight">${soldCost2}</span></p>`;
+            html += `<p>剩余成本: ${totalCostRaw} - ${soldCost2} = <span class="highlight">${remainCost2}</span></p>`;
+            html += `<p>剩余平均成本: ${remainCost2} ÷ 400 = <span class="highlight">${remainAvg2}</span></p>`;
+            html += `<p>四舍五入: <span class="highlight">${remainAvg2.toFixed(2)}</span> ✓ 得到 $22.78</p>`;
+            
+            html += '</div>';
+            
+            html += '<div class="step" style="border-left-color: #FF9800;">';
+            html += '<h3>⚠️ 精度损失分析</h3>';
+            html += '<p>由于在计算过程中进行了中间四舍五入，导致：</p>';
+            html += '<ul>';
+            html += '<li>真实平均成本: 22.775632...</li>';
+            html += '<li>四舍五入后: 22.78（用于卖出计算）</li>';
+            html += '<li>这导致卖出扣除的成本略多（10706.6 vs 10704.55）</li>';
+            html += '<li>因此剩余成本变少，剩余平均成本从 22.78 降到 22.77</li>';
+            html += '</ul>';
+            html += '<p><strong>结论：$22.77 是由于精度处理导致的，在技术上是"正确"的（符合代码逻辑），但在会计上略有偏差。</strong></p>';
+            html += '</div>';
+            
+            html += '</div>';
+            return html;
+        }
+
+        // 渲染结果
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = codeCalculation() + manualCalculation() + theoreticalAnalysis();
+    </script>
+</body>
+</html>
+
